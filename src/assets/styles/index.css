@@ -1,0 +1,6 @@
+@import '~antd/dist/antd.css';
+
+.ant-select-multiple .ant-select-selection-item {
+  height: 27px;
+}
+@import "bootstrap/dist/css/bootstrap.min.css";
