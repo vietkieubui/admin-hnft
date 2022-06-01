@@ -1,71 +1,132 @@
-import React, { useState, useContext } from "react";
+import { Button, Col, Form, Input, Row } from "antd";
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
-import { Input, Form, Checkbox, Button, Col, Row } from "antd";
 import { COLORS } from "./../../../assets/constants/index";
+import { Alert } from "antd";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn, username, password, loginSuccess } =
-    useContext(AuthContext);
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
-  const [acc, setAcc] = useState({ user: "", pass: "" });
+    const navigate = useNavigate();
 
-  const onHandleLogin = () => {
-    navigate("/home");
-  };
+    // const { isLoggedIn, setIsLoggedIn, phone, password, loginSuccess } =
+    //     useContext(AuthContext);
+    // const [user, setUser] = useState("");
+    // const [pass, setPass] = useState("");
+    // const [acc, setAcc] = useState({ user: "", pass: "" });
 
-  return (
-    <Row justify="center">
-      <Col span={12}>
-        <p style={{ textAlign: "center", fontSize: 20 }}>Login</p>
-        <Form
-          name="basic"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          initialValues={{ remember: true }}
-          autoComplete="off"
-        >
-          <Form.Item
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input />
-          </Form.Item>
+    // Context
+    const { loginUser } = useContext(AuthContext);
 
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
+    // Local state
+    const [loginForm, setLoginForm] = useState({
+        phone: "",
+        password: "",
+    });
 
-          <Form.Item
-            name="remember"
-            valuePropName="checked"
-            wrapperCol={{ offset: 8, span: 16 }}
-          >
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item>
+    const onChangeLoginForm = (event) =>
+        setLoginForm({ ...loginForm, [event.target.name]: event.target.value });
 
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button
-              style={{
-                backgroundColor: COLORS.primary,
-                borderRadius: "9px",
-                width: "200px",
-              }}
-              type="primary"
-              onClick={onHandleLogin}
-            >
-              Login
-            </Button>
-          </Form.Item>
-        </Form>
-      </Col>
-    </Row>
-  );
+    const { phone, password } = loginForm;
+
+    const [alert, setAlert] = useState(null);
+
+    const handleLogin = async () => {
+        try {
+            const loginData = await loginUser(loginForm);
+            if (!loginData.success) {
+                setAlert({ type: "error", message: loginData.message });
+                setTimeout(() => setAlert(null), 3000);
+            }
+            console.log(loginData);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // console.log(loginForm);
+
+    return (
+        <Row justify="center" align="middle" style={{ height: "100vh" }}>
+            {alert ? (
+                <div style={{ position: "absolute", top: 20, right: 0 }}>
+                    <Alert {...alert} showIcon />
+                </div>
+            ) : null}
+
+            <Col span={8}>
+                <p style={{ textAlign: "center", fontSize: 24 }}>Đăng nhập</p>
+
+                <Form
+                    name="basic"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 16 }}
+                    // initialValues={{ remember: true }}
+                    autoComplete="off"
+                    onFinish={handleLogin}
+                >
+                    <Form.Item
+                        label="Số điện thoại"
+                        name="phone"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Vui lòng nhập SĐT!",
+                            },
+                        ]}
+                        value={phone}
+                        onChange={onChangeLoginForm}
+                    >
+                        <Input name="phone" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Mật khẩu"
+                        name="password"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Vui lòng nhập mật khẩu!",
+                            },
+                        ]}
+                        value={password}
+                        onChange={onChangeLoginForm}
+                    >
+                        <Input.Password name="password" />
+                    </Form.Item>
+
+                    {/* <Form.Item
+                        name="remember"
+                        valuePropName="checked"
+                        wrapperCol={{ offset: 8, span: 16 }}
+                    >
+                        <Checkbox>Remember me</Checkbox>
+                    </Form.Item> */}
+
+                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                        <Button
+                            type="link"
+                            htmlType="button"
+                            onClick={() => navigate("/register")}
+                        >
+                            Đăng ký cửa hàng mới
+                        </Button>
+
+                        <Button
+                            style={{
+                                backgroundColor: COLORS.primary,
+                                borderRadius: "4px",
+                                width: "100px",
+                                border: "none",
+                            }}
+                            type="primary"
+                            htmlType="submit"
+                            // onClick={handleLogin}
+                        >
+                            Đăng nhập
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Col>
+        </Row>
+    );
 }
