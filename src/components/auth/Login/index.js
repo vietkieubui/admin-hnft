@@ -8,14 +8,8 @@ import { Alert } from "antd";
 export default function Login() {
     const navigate = useNavigate();
 
-    // const { isLoggedIn, setIsLoggedIn, phone, password, loginSuccess } =
-    //     useContext(AuthContext);
-    // const [user, setUser] = useState("");
-    // const [pass, setPass] = useState("");
-    // const [acc, setAcc] = useState({ user: "", pass: "" });
-
     // Context
-    const { loginUser } = useContext(AuthContext);
+    const { loginStore } = useContext(AuthContext);
 
     // Local state
     const [loginForm, setLoginForm] = useState({
@@ -32,12 +26,12 @@ export default function Login() {
 
     const handleLogin = async () => {
         try {
-            const loginData = await loginUser(loginForm);
+            const loginData = await loginStore(loginForm);
             if (!loginData.success) {
                 setAlert({ type: "error", message: loginData.message });
                 setTimeout(() => setAlert(null), 3000);
             }
-            console.log(loginData);
+            // console.log(loginData);
         } catch (error) {
             console.log(error);
         }

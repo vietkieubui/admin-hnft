@@ -1,36 +1,87 @@
-import React, { useState } from "react";
-import { Input, Form, Checkbox, Button, Row, Col, Select } from "antd";
+import { Button, Col, Form, Input, Row, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import { COLORS } from "./../../../assets/constants/index";
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../../../contexts/AuthContext";
+import { Alert } from "antd";
 
 export default function Register() {
     const navigate = useNavigate();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [repassword, setRepassword] = useState("");
-    const [name, setName] = useState("");
-    const [address, setAddress] = useState("");
-    const [categoriesList, setCategoriesList] = useState([]);
-    console.log({
-        username,
-        password,
-        repassword,
-        name,
-        address,
-        categoriesList,
+
+    // Context
+    const { registerStore } = useContext(AuthContext);
+
+    // Local state
+    const [registerForm, setRegisterForm] = useState({
+        phone: "",
+        password: "",
+        confirmPassword: "",
+        name: "",
+        address: "",
+        listCate: [],
+        avatar: "",
+        foods: [],
     });
 
-    const onHandleRegister = () => {
-        // navigate("/home");
+    const onChangeRegisterForm = (event) => {
+        // console.log(event);
+        event.target
+            ? setRegisterForm({
+                  ...registerForm,
+                  [event.target.name]: event.target.value,
+              })
+            : setRegisterForm({
+                  ...registerForm,
+                  listCate: event,
+              });
     };
+
+    const { phone, password, confirmPassword, name, address, listCate } =
+        registerForm;
+
+    const [alert, setAlert] = useState(null);
+
+    const handleRegister = async () => {
+        if (password !== confirmPassword) {
+            setAlert({
+                type: "error",
+                message: "Mật khẩu và mật khẩu xác nhận không giống nhau",
+            });
+            setTimeout(() => setAlert(null), 3000);
+        } else {
+            try {
+                const registerData = await registerStore(registerForm);
+                if (!registerData.success) {
+                    setAlert({ type: "error", message: registerData.message });
+                    setTimeout(() => setAlert(null), 3000);
+                }
+                console.log(registerData);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    };
+
+    // console.log(registerForm);
+    // console.log(listCate);
+
     return (
         <>
             <Row justify="center" align="middle" style={{ height: "100vh" }}>
-                <Col span={10}>
-                    <p
-                        wrapperCol={{ offset: 8, span: 16 }}
-                        style={{ textAlign: "center", fontSize: 24 }}
+                {alert ? (
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: 20,
+                            right: 0,
+                            zIndex: 999,
+                        }}
                     >
+                        <Alert {...alert} showIcon />
+                    </div>
+                ) : null}
+                <Col span={10}>
+                    <p style={{ textAlign: "center", fontSize: 24 }}>
                         Đăng ký cửa hàng
                     </p>
                     <Form
@@ -39,23 +90,8 @@ export default function Register() {
                         wrapperCol={{ span: 16 }}
                         initialValues={{ remember: true }}
                         autoComplete="off"
+                        onFinish={handleRegister}
                     >
-                        {/* <Form.Item
-                            label="Username"
-                            name="username"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Please input your username!",
-                                },
-                            ]}
-                        >
-                            <Input
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
-                        </Form.Item> */}
-
                         <Form.Item
                             name="phone"
                             label="SĐT"
@@ -65,11 +101,10 @@ export default function Register() {
                                     message: "Vui lòng nhập Số điện thoại",
                                 },
                             ]}
+                            value={phone}
+                            onChange={onChangeRegisterForm}
                         >
-                            <Input
-                                // addonBefore={prefixSelector}
-                                style={{ width: "100%" }}
-                            />
+                            <Input name="phone" />
                         </Form.Item>
 
                         <Form.Item
@@ -81,26 +116,24 @@ export default function Register() {
                                     message: "Vui lòng nhập mật khẩu",
                                 },
                             ]}
+                            value={password}
+                            onChange={onChangeRegisterForm}
                         >
-                            <Input.Password
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
+                            <Input.Password name="password" />
                         </Form.Item>
                         <Form.Item
                             label="Xác nhận mật khẩu"
-                            name="repassword"
+                            name="confirmPassword"
                             rules={[
                                 {
                                     required: true,
                                     message: "Vui lòng nhập mật khẩu",
                                 },
                             ]}
+                            value={confirmPassword}
+                            onChange={onChangeRegisterForm}
                         >
-                            <Input.Password
-                                value={repassword}
-                                onChange={(e) => setRepassword(e.target.value)}
-                            />
+                            <Input.Password name="confirmPassword" />
                         </Form.Item>
                         <Form.Item
                             label="Tên cửa hàng"
@@ -111,11 +144,10 @@ export default function Register() {
                                     message: "Vui lòng nhập tên cửa hàng",
                                 },
                             ]}
+                            value={name}
+                            onChange={onChangeRegisterForm}
                         >
-                            <Input
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                            />
+                            <Input name="name" />
                         </Form.Item>
                         <Form.Item
                             label="Địa chỉ"
@@ -126,12 +158,14 @@ export default function Register() {
                                     message: "Vui lòng nhập địa chỉ ",
                                 },
                             ]}
+                            value={address}
+                            onChange={onChangeRegisterForm}
                         >
-                            <Input />
+                            <Input name="address" />
                         </Form.Item>
                         <Form.Item
                             label="Danh mục sản phẩm"
-                            name="categories"
+                            name="listCate"
                             rules={[
                                 {
                                     required: false,
@@ -142,8 +176,8 @@ export default function Register() {
                                 mode="multiple"
                                 allowClear
                                 placeholder="Chọn danh mục sản phẩm"
-                                value={categoriesList}
-                                onChange={(value) => setCategoriesList(value)}
+                                value={listCate}
+                                onChange={onChangeRegisterForm}
                             >
                                 {categories.map((item) => (
                                     <Select.Option
@@ -173,7 +207,6 @@ export default function Register() {
                                     // width: "200px",
                                 }}
                                 type="primary"
-                                onClick={onHandleRegister}
                                 htmlType="submit"
                             >
                                 Đăng ký

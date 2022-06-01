@@ -1,8 +1,8 @@
-import React, { useState, createContext, useReducer, useEffect } from "react";
-import { authReducer } from "../reducers/authReducer";
-import { apiUrl, LOCAL_STORAGE_TOKEN_NAME } from "./constants";
 import axios from "axios";
+import React, { createContext, useEffect, useReducer } from "react";
+import { authReducer } from "../reducers/authReducer";
 import setAuthToken from "../utils/setAuthToken";
+import { apiUrl, LOCAL_STORAGE_TOKEN_NAME } from "./constants";
 
 export const AuthContext = createContext();
 
@@ -13,34 +13,7 @@ const AuthContextProvider = ({ children }) => {
         user: null,
     });
 
-    // Authenticate user
-    // const loadUser = async () => {
-    //     if (localStorage[LOCAL_STORAGE_TOKEN_NAME]) {
-    //         setAuthToken(localStorage[LOCAL_STORAGE_TOKEN_NAME]);
-    //     }
-
-    //     try {
-    //         const response = await axios.get(`${apiUrl}/auth`);
-    //         if (response.data.success) {
-    //             dispatch({
-    //                 type: "SET_AUTH",
-    //                 payload: {
-    //                     isAuthenticated: true,
-    //                     user: response.data.user,
-    //                 },
-    //             });
-    //         }
-    //     } catch (error) {
-    //         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
-    //         setAuthToken(null);
-    //         dispatch({
-    //             type: "SET_AUTH",
-    //             payload: { isAuthenticated: false, user: null },
-    //         });
-    //     }
-    // };
-
-    const loadUser = () => {
+    const loadStore = () => {
         if (localStorage[LOCAL_STORAGE_TOKEN_NAME]) {
             setAuthToken(localStorage[LOCAL_STORAGE_TOKEN_NAME]);
         }
@@ -57,10 +30,9 @@ const AuthContextProvider = ({ children }) => {
                         },
                     });
                 }
-                console.log(response.data);
+                // console.log(response.data);
             })
             .catch(function (error) {
-                console.log(error.response.data);
                 localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
                 setAuthToken(null);
 
@@ -71,14 +43,14 @@ const AuthContextProvider = ({ children }) => {
             });
     };
 
-    useEffect(() => loadUser(), []);
+    useEffect(() => loadStore(), []);
 
     // Login
-    const loginUser = async (userForm) => {
+    const loginStore = async (storeForm) => {
         try {
             const response = await axios.post(
                 `${apiUrl}/auth/store/login`,
-                userForm
+                storeForm
             );
             if (response.data.success)
                 localStorage.setItem(
@@ -86,7 +58,7 @@ const AuthContextProvider = ({ children }) => {
                     response.data.accessToken
                 );
 
-            // await loadUser();
+            loadStore();
 
             return response.data;
         } catch (error) {
@@ -96,56 +68,44 @@ const AuthContextProvider = ({ children }) => {
     };
 
     // Register
-    // const registerUser = async userForm => {
-    // 	try {
-    // 		const response = await axios.post(`${apiUrl}/auth/register`, userForm)
-    // 		if (response.data.success)
-    // 			localStorage.setItem(
-    // 				LOCAL_STORAGE_TOKEN_NAME,
-    // 				response.data.accessToken
-    // 			)
+    const registerStore = async (storeForm) => {
+        try {
+            const response = await axios.post(
+                `${apiUrl}/auth/store/register`,
+                storeForm
+            );
 
-    // 		await loadUser()
+            if (response.data.success)
+                localStorage.setItem(
+                    LOCAL_STORAGE_TOKEN_NAME,
+                    response.data.accessToken
+                );
 
-    // 		return response.data
-    // 	} catch (error) {
-    // 		if (error.response.data) return error.response.data
-    // 		else return { success: false, message: error.message }
-    // 	}
-    // }
+            loadStore();
 
-    // const [username, setUsername] = useState("admin");
-    // const [password, setPassword] = useState("abc");
+            // return response.data;
+        } catch (error) {
+            if (error.response.data) return error.response.data;
+            else return { success: false, message: error.message };
+        }
+    };
 
-    // const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    // const loginSuccess = () => {
-    //     setIsLoggedIn(!isLoggedIn);
-    // };
-
-    // const changePassword = ({ newpass }) => {
-    //     setPassword(newpass);
-    // };
-
-    // const authContextData = {
-    //     username,
-    //     setUsername,
-    //     password,
-    //     setPassword,
-    //     isLoggedIn,
-    //     setIsLoggedIn,
-    //     loginSuccess,
-    //     changePassword,
-    // };
-
-    // return (
-    //     <AuthContext.Provider value={authContextData}>
-    //         {children}
-    //     </AuthContext.Provider>
-    // );
+    // Logout
+    const logoutStore = () => {
+        localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+        dispatch({
+            type: "SET_AUTH",
+            payload: { isAuthenticated: false, user: null },
+        });
+    };
 
     // Context data
-    const authContextData = { loginUser, authState };
+    const authContextData = {
+        loginStore,
+        registerStore,
+        logoutStore,
+        authState,
+    };
 
     // Return provider
     return (
