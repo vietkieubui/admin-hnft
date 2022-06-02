@@ -4,7 +4,6 @@ import {
     ContainerOutlined,
     HomeOutlined,
     LogoutOutlined,
-    PlusOutlined,
     ShoppingOutlined,
     ShrinkOutlined,
 } from "@ant-design/icons";

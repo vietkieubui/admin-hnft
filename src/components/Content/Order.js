@@ -1,5 +1,5 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Row, Space, Statistic, Table, Tag } from "antd";
+import { Button, Input, Space, Table, Tag } from "antd";
 import React, { useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
 

@@ -4,14 +4,14 @@ import {
     Form,
     Image,
     Input,
+    Modal,
     Radio,
     Space,
     Table,
     Tag,
     Upload,
-    Modal,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 // import { Modal } from "react-bootstrap";
 
 export default function FoodTable() {

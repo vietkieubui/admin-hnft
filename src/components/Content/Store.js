@@ -37,9 +37,9 @@ function Store() {
               });
     };
 
-    const { phone, name, address, listCate } = registerForm;
+    const { phone, name, address } = registerForm;
 
-    const [alert, setAlert] = useState(null);
+    // const [alert, setAlert] = useState(null);
 
     const handleUpdateStore = () => {
         console.log("submit");
