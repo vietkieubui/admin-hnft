@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { AuthContext } from "../contexts/AuthContext";
 import { COLORS } from "./../assets/constants";
-import FoodTable from "./foodTable";
+import FoodTable from "./Content/foodTable";
 import Sidebar from "./sidebar";
 
 export default function DashBoard() {

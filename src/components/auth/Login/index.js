@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { COLORS } from "./../../../assets/constants/index";
 import { Alert } from "antd";
+// import img from "../../../assets/images/bglogin.jpg";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -40,15 +41,38 @@ export default function Login() {
     // console.log(loginForm);
 
     return (
-        <Row justify="center" align="middle" style={{ height: "100vh" }}>
+        <Row
+            justify="center"
+            align="middle"
+            style={{
+                height: "100vh",
+                // backgroundImage: `url(${img})`,
+                // backgroundSize: "cover",
+            }}
+        >
             {alert ? (
                 <div style={{ position: "absolute", top: 20, right: 0 }}>
                     <Alert {...alert} showIcon />
                 </div>
             ) : null}
 
-            <Col span={8}>
-                <p style={{ textAlign: "center", fontSize: 24 }}>Đăng nhập</p>
+            <Col
+                span={8}
+                // style={{
+                //     backgroundColor: "rgba(0, 0, 0, 0.6)",
+                //     paddingLeft: 50,
+                //     paddingRight: 50,
+                // }}
+            >
+                <p
+                    style={{
+                        textAlign: "center",
+                        fontSize: 24,
+                        // color: "white",
+                    }}
+                >
+                    Đăng nhập
+                </p>
 
                 <Form
                     name="basic"

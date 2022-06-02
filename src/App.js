@@ -8,7 +8,7 @@ function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Auth authRoute="login" />} />
             <Route path="/register" element={<Auth authRoute="register" />} />
-            <Route path="/dashboard" element={<ProtectedRoute />} />
+            <Route path="/dashboard/*" element={<ProtectedRoute />} />
         </Routes>
     );
 }

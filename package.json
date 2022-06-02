@@ -16,6 +16,7 @@
     "react-bootstrap": "^2.4.0",
     "react-bootstrap-icons": "^1.8.2",
     "react-dom": "^18.1.0",
+    "react-highlight-words": "^0.18.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "sass": "^1.52.1",
