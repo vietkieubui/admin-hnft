@@ -13,6 +13,7 @@ const AuthContextProvider = ({ children }) => {
         user: null,
     });
 
+    // Get store
     const loadStore = () => {
         if (localStorage[LOCAL_STORAGE_TOKEN_NAME]) {
             setAuthToken(localStorage[LOCAL_STORAGE_TOKEN_NAME]);
@@ -26,7 +27,7 @@ const AuthContextProvider = ({ children }) => {
                         type: "SET_AUTH",
                         payload: {
                             isAuthenticated: true,
-                            user: response.data.user,
+                            store: response.data.store,
                         },
                     });
                 }
@@ -38,14 +39,14 @@ const AuthContextProvider = ({ children }) => {
 
                 dispatch({
                     type: "SET_AUTH",
-                    payload: { isAuthenticated: false, user: null },
+                    payload: { isAuthenticated: false, store: null },
                 });
             });
     };
 
     useEffect(() => loadStore(), []);
 
-    // Login
+    // Login store
     const loginStore = async (storeForm) => {
         try {
             const response = await axios.post(
@@ -67,7 +68,7 @@ const AuthContextProvider = ({ children }) => {
         }
     };
 
-    // Register
+    // Register store
     const registerStore = async (storeForm) => {
         try {
             const response = await axios.post(
@@ -90,6 +91,27 @@ const AuthContextProvider = ({ children }) => {
         }
     };
 
+    // Update store
+    const updateStore = async (updatedStore) => {
+        try {
+            const response = await axios.put(
+                `${apiUrl}/auth/store/${updatedStore._id}`,
+                updatedStore
+            );
+            if (response.data.success) {
+                dispatch({
+                    type: "UPDATE_STORE",
+                    payload: response.data.store,
+                });
+                return response.data;
+            }
+        } catch (error) {
+            return error.response.data
+                ? error.response.data
+                : { success: false, message: "Server error" };
+        }
+    };
+
     // Logout
     const logoutStore = () => {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
@@ -103,6 +125,7 @@ const AuthContextProvider = ({ children }) => {
     const authContextData = {
         loginStore,
         registerStore,
+        updateStore,
         logoutStore,
         authState,
     };

@@ -1,5 +1,6 @@
 import { UserOutlined } from "@ant-design/icons";
 import {
+    Alert,
     Avatar,
     Button,
     Col,
@@ -9,43 +10,55 @@ import {
     Select,
     TimePicker,
 } from "antd";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
 
 function Store() {
+    const {
+        authState: { store },
+        updateStore,
+    } = useContext(AuthContext);
+
+    // console.log(store);
     // Local state
-    const [registerForm, setRegisterForm] = useState({
-        phone: "",
-        password: "",
-        confirmPassword: "",
-        name: "",
-        address: "",
-        listCate: [],
-        avatar: "",
-        foods: [],
+    const [updateForm, setUpdateForm] = useState({
+        ...store,
     });
 
-    const onChangeRegisterForm = (event) => {
+    const onChangeUpdateForm = (event) => {
         // console.log(event);
         event.target
-            ? setRegisterForm({
-                  ...registerForm,
+            ? setUpdateForm({
+                  ...updateForm,
                   [event.target.name]: event.target.value,
               })
-            : setRegisterForm({
-                  ...registerForm,
-                  listCate: event,
+            : setUpdateForm({
+                  ...updateForm,
+                  categories: event,
               });
     };
 
-    const { phone, name, address } = registerForm;
+    const { phone, name, address, categories } = updateForm;
 
-    // const [alert, setAlert] = useState(null);
+    const [alert, setAlert] = useState(null);
 
-    const handleUpdateStore = () => {
-        console.log("submit");
+    const handleUpdateStore = async () => {
+        // console.log(updateForm);
+        try {
+            const updateData = await updateStore(updateForm);
+            setAlert({
+                type: updateData.success ? "success" : "error",
+                message: updateData.message,
+            });
+            setTimeout(() => setAlert(null), 3000);
+
+            // console.log(updateData);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    const categories = [
+    const categoriesData = [
         {
             id: "fa6376a2-11f4-56e0-8c6d-5fe9740efe98",
             name: "Bún",
@@ -117,6 +130,12 @@ function Store() {
 
     return (
         <Row>
+            {alert ? (
+                <div style={{ position: "absolute", top: 20, right: 0 }}>
+                    <Alert {...alert} showIcon />
+                </div>
+            ) : null}
+
             <Col span={12} offset={6}>
                 <Row justify="center">
                     <Avatar
@@ -134,7 +153,13 @@ function Store() {
                     name="basic"
                     labelCol={{ span: 8 }}
                     wrapperCol={{ span: 16 }}
-                    initialValues={{ remember: true }}
+                    initialValues={{
+                        remember: true,
+                        phone: store.phone,
+                        name: store.name,
+                        address: store.address,
+                        categories: store.categories,
+                    }}
                     autoComplete="off"
                     onFinish={handleUpdateStore}
                 >
@@ -148,7 +173,7 @@ function Store() {
                             },
                         ]}
                         value={phone}
-                        onChange={onChangeRegisterForm}
+                        onChange={onChangeUpdateForm}
                     >
                         <Input name="phone" />
                     </Form.Item>
@@ -163,7 +188,7 @@ function Store() {
                             },
                         ]}
                         value={name}
-                        onChange={onChangeRegisterForm}
+                        onChange={onChangeUpdateForm}
                     >
                         <Input name="name" />
                     </Form.Item>
@@ -178,7 +203,7 @@ function Store() {
                             },
                         ]}
                         value={address}
-                        onChange={onChangeRegisterForm}
+                        onChange={onChangeUpdateForm}
                     >
                         <Input name="address" />
                     </Form.Item>
@@ -186,19 +211,19 @@ function Store() {
                     <Form.Item
                         label="Thời gian mở cửa"
                         name="timeOpen"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Vui lòng chọn thời gian mở cửa",
-                            },
-                        ]}
+                        // rules={[
+                        //     {
+                        //         required: true,
+                        //         message: "Vui lòng chọn thời gian mở cửa",
+                        //     },
+                        // ]}
                     >
                         <TimePicker.RangePicker />
                     </Form.Item>
 
                     <Form.Item
                         label="Danh mục sản phẩm"
-                        name="listCate"
+                        name="categories"
                         rules={[
                             {
                                 required: true,
@@ -210,10 +235,10 @@ function Store() {
                             mode="multiple"
                             allowClear
                             placeholder="Chọn danh mục sản phẩm"
-                            // value={listCate}
-                            // onChange={onChangeRegisterForm}
+                            value={categories}
+                            onChange={onChangeUpdateForm}
                         >
-                            {categories.map((item) => (
+                            {categoriesData.map((item) => (
                                 <Select.Option key={item.id} value={item.name}>
                                     {item.name}
                                 </Select.Option>
