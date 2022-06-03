@@ -13,6 +13,11 @@ export const authReducer = (state, action) => {
                 ...state,
                 ...payload,
             };
+        case "UPDATE_AVATAR":
+            return {
+                ...state,
+                avatar: payload,
+            };
 
         default:
             return state;

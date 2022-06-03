@@ -152,9 +152,9 @@ router.get("/store", verifyToken, async (req, res) => {
 // @register store
 // @public
 router.post("/store/register", async (req, res) => {
-    const { phone, password, name, address, listCate, avatar, foods } =
+    const { phone, password, name, address, timeOpen, timeClose, categories } =
         req.body;
-
+    // console.log(req.body);
     // if (!username || !password) {
     //     return res
     //         .status(400)
@@ -179,10 +179,14 @@ router.post("/store/register", async (req, res) => {
             password: hashedPassword,
             name: name,
             address: address,
-            categories: listCate,
-            avatar: avatar,
-            foods: foods,
+            timeOpen: timeOpen,
+            timeClose: timeClose,
+            categories: categories,
+            avatar: "",
+            foods: [],
         });
+
+        // console.log(newStore);
 
         await newStore.save();
 

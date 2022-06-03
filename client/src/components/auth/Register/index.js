@@ -1,43 +1,59 @@
-import { Button, Col, Form, Input, Row, Select } from "antd";
+import {
+    Button,
+    Col,
+    Form,
+    Input,
+    message,
+    Row,
+    Select,
+    TimePicker,
+    Upload,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import { COLORS } from "./../../../assets/constants/index";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { Alert } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import moment from "moment";
 
 export default function Register() {
     const navigate = useNavigate();
 
     // Context
-    const { registerStore } = useContext(AuthContext);
+    const { registerStore, uploadFile } = useContext(AuthContext);
 
     // Local state
+    const [avatar, setAvatar] = useState(null);
     const [registerForm, setRegisterForm] = useState({
         phone: "",
         password: "",
         confirmPassword: "",
         name: "",
         address: "",
-        listCate: [],
-        avatar: "",
-        foods: [],
+        timeOpen: "",
+        timeClose: "",
+        categories: [],
     });
 
     const onChangeRegisterForm = (event) => {
         // console.log(event);
-        event.target
-            ? setRegisterForm({
-                  ...registerForm,
-                  [event.target.name]: event.target.value,
-              })
-            : setRegisterForm({
-                  ...registerForm,
-                  listCate: event,
-              });
+        setRegisterForm({
+            ...registerForm,
+            [event.target.name]: event.target.value,
+        });
     };
 
-    const { phone, password, confirmPassword, name, address, listCate } =
-        registerForm;
+    const {
+        phone,
+        password,
+        confirmPassword,
+        name,
+        address,
+        timeOpen,
+        timeClose,
+        categories,
+    } = registerForm;
 
     const [alert, setAlert] = useState(null);
 
@@ -51,10 +67,21 @@ export default function Register() {
         } else {
             try {
                 const registerData = await registerStore(registerForm);
+
                 if (!registerData.success) {
                     setAlert({ type: "error", message: registerData.message });
                     setTimeout(() => setAlert(null), 3000);
                 }
+                // else {
+                //     const uploadFileData = await uploadFile(avatar);
+                //     if (!uploadFileData.success) {
+                //         setAlert({
+                //             type: "error",
+                //             message: uploadFileData.message,
+                //         });
+                //         setTimeout(() => setAlert(null), 3000);
+                //     }
+                // }
                 console.log(registerData);
             } catch (error) {
                 console.log(error);
@@ -62,8 +89,38 @@ export default function Register() {
         }
     };
 
-    // console.log(registerForm);
-    // console.log(listCate);
+    console.log(registerForm);
+    console.log(avatar);
+
+    const normFile = (e) => {
+        console.log("Upload event:", e.file);
+        setAvatar(e.file);
+
+        if (Array.isArray(e)) {
+            return e;
+        }
+
+        return e?.fileList;
+    };
+
+    const beforeUpload = (file) => {
+        const isJpgOrPng =
+            file.type === "image/jpeg" || file.type === "image/png";
+
+        if (!isJpgOrPng) {
+            message.error("Chỉ có thể chọn file JPG hoặc PNG");
+            return Upload.LIST_IGNORE;
+        }
+
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isLt2M) {
+            message.error("Hình ảnh phải bé hơn 2MB");
+            return Upload.LIST_IGNORE;
+        }
+
+        return false;
+    };
 
     return (
         <>
@@ -92,6 +149,40 @@ export default function Register() {
                         autoComplete="off"
                         onFinish={handleRegister}
                     >
+                        <input
+                            type="file"
+                            onChange={(e) => {
+                                let url = "https://<server-url>/api/upload";
+                                let file = e.target.files[0];
+                                console.log("url: ", url);
+                                console.log("file: ", file);
+                            }}
+                            accept="image/*"
+                        />
+                        <Form.Item
+                            name="avatar"
+                            label="Ảnh đại diện"
+                            valuePropName="fileList"
+                            getValueFromEvent={normFile}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Vui lòng chọn ảnh đại diện",
+                                },
+                            ]}
+                        >
+                            <Upload
+                                name="avatar"
+                                listType="picture"
+                                maxCount={1}
+                                beforeUpload={beforeUpload}
+                            >
+                                <Button icon={<UploadOutlined />}>
+                                    Chọn ảnh
+                                </Button>
+                            </Upload>
+                        </Form.Item>
+
                         <Form.Item
                             name="phone"
                             label="SĐT"
@@ -163,6 +254,53 @@ export default function Register() {
                         >
                             <Input name="address" />
                         </Form.Item>
+
+                        <Form.Item
+                            label="Thời gian mở cửa"
+                            name="timeOpen"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Vui lòng chọn thời gian mở cửa",
+                                },
+                            ]}
+                            // initialValue={moment("13:30:56", "HH:mm:ss")}
+                        >
+                            <TimePicker
+                                name="timeOpen"
+                                value={moment(timeOpen, "HH:mm:ss")}
+                                onChange={(a, b) =>
+                                    setRegisterForm({
+                                        ...registerForm,
+                                        timeOpen: b,
+                                    })
+                                }
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Thời gian đóng cửa"
+                            name="timeClose"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Vui lòng chọn thời gian mở cửa",
+                                },
+                            ]}
+                            // initialValue={moment("13:30:56", "HH:mm:ss")}
+                        >
+                            <TimePicker
+                                name="timeClose"
+                                value={moment(timeClose, "HH:mm:ss")}
+                                onChange={(a, b) =>
+                                    setRegisterForm({
+                                        ...registerForm,
+                                        timeClose: b,
+                                    })
+                                }
+                            />
+                        </Form.Item>
+
                         <Form.Item
                             label="Danh mục sản phẩm"
                             name="listCate"
@@ -176,10 +314,15 @@ export default function Register() {
                                 mode="multiple"
                                 allowClear
                                 placeholder="Chọn danh mục sản phẩm"
-                                value={listCate}
-                                onChange={onChangeRegisterForm}
+                                value={categories}
+                                onChange={(listCate) =>
+                                    setRegisterForm({
+                                        ...registerForm,
+                                        categories: listCate,
+                                    })
+                                }
                             >
-                                {categories.map((item) => (
+                                {categoriesData.map((item) => (
                                     <Select.Option
                                         key={item.id}
                                         value={item.name}
@@ -219,7 +362,7 @@ export default function Register() {
     );
 }
 
-const categories = [
+const categoriesData = [
     {
         id: "fa6376a2-11f4-56e0-8c6d-5fe9740efe98",
         name: "Bún",

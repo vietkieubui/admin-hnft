@@ -19,6 +19,12 @@ const StoreSchema = new Schema({
         type: String,
         // require: true,
     },
+    timeOpen: {
+        type: String,
+    },
+    timeClose: {
+        type: String,
+    },
     categories: {
         type: Array,
     },

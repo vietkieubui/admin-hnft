@@ -40,13 +40,14 @@ POST http://localhost:5000/auth/store/register
 Content-Type: application/json
 
 {
-    "phone" : "0387126046",
-    "password": "tung811",
-    "name": "Bún chả Hà Nội",
-    "address": "Tân Triều, Thanh Trì, Hà Nội", 
-    "listCate": ["bun", "pho"],
-    "avatar": "",
-    "foods": []
+    "address": "HaNoi",
+    "categories": ["Xôi", "Cháo", "Chè"],
+    "confirmPassword": "123",
+    "name": "a ấ",
+    "password": "123",
+    "phone": "0387126043",
+    "timeClose": "20:00:00",
+    "timeOpen": "07:00:00"
 }
 
 ###
@@ -82,6 +83,9 @@ Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjYzY2I
 
 //-----------------------------------------------UPLOAD-----------------------------------------------
 ###
-POST http://localhost:5000/add/
+POST http://localhost:5000/images/add/629799dbf89ed5d7c51264fa
+Content-Type: application/json
 
-
+{
+    "photo": "C:/Users/Administrator/Desktop/admin-hnft/client/src/assets/images"
+}

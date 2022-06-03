@@ -1,17 +1,20 @@
-import { UserOutlined } from "@ant-design/icons";
+import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import {
     Alert,
-    Avatar,
     Button,
     Col,
     Form,
+    Image,
     Input,
+    message,
     Row,
     Select,
     TimePicker,
+    Upload,
 } from "antd";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
+import moment from "moment";
 
 function Store() {
     const {
@@ -19,7 +22,7 @@ function Store() {
         updateStore,
     } = useContext(AuthContext);
 
-    // console.log(store);
+    console.log(store);
     // Local state
     const [updateForm, setUpdateForm] = useState({
         ...store,
@@ -128,6 +131,35 @@ function Store() {
         },
     ];
 
+    const normFile = (e) => {
+        console.log("Upload event:", e);
+
+        if (Array.isArray(e)) {
+            return e;
+        }
+
+        return e?.fileList;
+    };
+
+    const beforeUpload = (file) => {
+        const isJpgOrPng =
+            file.type === "image/jpeg" || file.type === "image/png";
+
+        if (!isJpgOrPng) {
+            message.error("Chỉ có thể chọn file JPG hoặc PNG");
+            return Upload.LIST_IGNORE;
+        }
+
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isLt2M) {
+            message.error("Hình ảnh phải bé hơn 2MB");
+            return Upload.LIST_IGNORE;
+        }
+
+        return false;
+    };
+
     return (
         <Row>
             {alert ? (
@@ -137,19 +169,16 @@ function Store() {
             ) : null}
 
             <Col span={12} offset={6}>
-                <Row justify="center">
-                    <Avatar
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            marginBottom: 20,
-                        }}
-                        size={100}
-                        icon={<UserOutlined />}
+                <Row justify="center" style={{ marginBottom: 30 }}>
+                    <Image
+                        // width={150}
+                        height={150}
+                        size="cover"
+                        src={store.avatar}
                     />
                 </Row>
                 <Form
+                    style={{ marginTop: 30 }}
                     name="basic"
                     labelCol={{ span: 8 }}
                     wrapperCol={{ span: 16 }}
@@ -158,11 +187,35 @@ function Store() {
                         phone: store.phone,
                         name: store.name,
                         address: store.address,
+                        timeOpen: moment(store.timeOpen, "HH:mm:ss"),
+                        timeClose: moment(store.timeClose, "HH:mm:ss"),
                         categories: store.categories,
                     }}
                     autoComplete="off"
                     onFinish={handleUpdateStore}
                 >
+                    <Form.Item
+                        name="avatar"
+                        label="Ảnh đại diện"
+                        valuePropName="fileList"
+                        getValueFromEvent={normFile}
+                        rules={[
+                            {
+                                required: true,
+                                message: "Vui lòng chọn ảnh đại diện",
+                            },
+                        ]}
+                    >
+                        <Upload
+                            name="avatar"
+                            listType="picture"
+                            maxCount={1}
+                            beforeUpload={beforeUpload}
+                        >
+                            <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                        </Upload>
+                    </Form.Item>
+
                     <Form.Item
                         name="phone"
                         label="SĐT"
@@ -211,14 +264,47 @@ function Store() {
                     <Form.Item
                         label="Thời gian mở cửa"
                         name="timeOpen"
-                        // rules={[
-                        //     {
-                        //         required: true,
-                        //         message: "Vui lòng chọn thời gian mở cửa",
-                        //     },
-                        // ]}
+                        rules={[
+                            {
+                                required: true,
+                                message: "Vui lòng chọn thời gian mở cửa",
+                            },
+                        ]}
+                        // initialValue={moment("13:30:56", "HH:mm:ss")}
                     >
-                        <TimePicker.RangePicker />
+                        <TimePicker
+                            name="timeOpen"
+                            // value={moment(timeOpen, "HH:mm:ss")}
+                            // onChange={(a, b) =>
+                            //     setRegisterForm({
+                            //         ...registerForm,
+                            //         timeOpen: b,
+                            //     })
+                            // }
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Thời gian đóng cửa"
+                        name="timeClose"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Vui lòng chọn thời gian mở cửa",
+                            },
+                        ]}
+                        // initialValue={moment("13:30:56", "HH:mm:ss")}
+                    >
+                        <TimePicker
+                            name="timeClose"
+                            // value={moment(timeClose, "HH:mm:ss")}
+                            // onChange={(a, b) =>
+                            //     setRegisterForm({
+                            //         ...registerForm,
+                            //         timeClose: b,
+                            //     })
+                            // }
+                        />
                     </Form.Item>
 
                     <Form.Item
