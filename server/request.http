@@ -1,0 +1,87 @@
+
+
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+    "username": "nguyentunglshb",
+    "password": "tung811"
+}
+
+###
+POST  http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+    "username": "nguyentunglshb",
+    "password": "tung811"
+}
+
+//-----------------------------------------------STORE-----------------------------------------------
+
+###
+GET http://localhost:5000/auth/store
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdG9yZUlkIjoiNjI5Nzk5ZGJmODllZDVkN2M1MTI2NGZhIiwiaWF0IjoxNjU0MjM4MTc4fQ.70Pewby4W9lUaUghnKgNULKVJPoYXHeJi2Qaze62dbE
+
+###
+PUT http://localhost:5000/auth/store/629799dbf89ed5d7c51264fa
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdG9yZUlkIjoiNjI5Nzk5ZGJmODllZDVkN2M1MTI2NGZhIiwiaWF0IjoxNjU0MjQwMjUyfQ.DkW1bdPhDTbhQJISaEWFCMZgRYA25tt7wm2aR1dtxtE
+Content-Type: application/json
+
+{
+    "phone" : "0387126036",
+    "name": "Bún chả Hà Nội 1",
+    "address": "Tân Triều, Thanh Trì, Hà Nội 1", 
+    "categories": ["bun", "pho", "chao"]
+}
+
+###
+POST http://localhost:5000/auth/store/register
+Content-Type: application/json
+
+{
+    "phone" : "0387126046",
+    "password": "tung811",
+    "name": "Bún chả Hà Nội",
+    "address": "Tân Triều, Thanh Trì, Hà Nội", 
+    "listCate": ["bun", "pho"],
+    "avatar": "",
+    "foods": []
+}
+
+###
+POST http://localhost:5000/auth/store/login
+Content-Type: application/json
+
+{
+    "phone": "0387126034",
+    "password": "123"
+}
+
+//-----------------------------------------------ORDER-----------------------------------------------
+
+###
+GET http://localhost:5000/orders
+Content-Type: application/json
+Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjYzY2I4ZTA4NmRhYzA0MmQwZTVjNzYiLCJpYXQiOjE2NTM2NjQ1MzV9.sddLn6AqY2aD6DChHa4E60kRjMxXOfXYQzo6rOip2oE
+
+
+###
+POST http://localhost:5000/orders
+Content-Type: : application/json
+Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjYzY2I4ZTA4NmRhYzA0MmQwZTVjNzYiLCJpYXQiOjE2NTM2NjQ1MzV9.sddLn6AqY2aD6DChHa4E60kRjMxXOfXYQzo6rOip2oE
+
+{
+    "list": [{
+        "name": "any"
+    }],
+    "price": "30000",
+    "ship": "35000",
+    "totalPrice": "65000"
+}
+
+//-----------------------------------------------UPLOAD-----------------------------------------------
+###
+POST http://localhost:5000/add/
+
+
