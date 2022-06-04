@@ -1,6 +1,5 @@
-import { UserOutlined, UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
 import {
-    Alert,
     Button,
     Col,
     Form,
@@ -12,48 +11,45 @@ import {
     TimePicker,
     Upload,
 } from "antd";
+import moment from "moment";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
-import moment from "moment";
 
 function Store() {
     const {
         authState: { store },
         updateStore,
+        uploadImage,
+        deleteImage,
     } = useContext(AuthContext);
 
-    console.log(store);
+    // console.log("Store:", store);
     // Local state
     const [updateForm, setUpdateForm] = useState({
         ...store,
     });
 
+    // console.log("UpdateForm:", updateForm);
+
     const onChangeUpdateForm = (event) => {
         // console.log(event);
-        event.target
-            ? setUpdateForm({
-                  ...updateForm,
-                  [event.target.name]: event.target.value,
-              })
-            : setUpdateForm({
-                  ...updateForm,
-                  categories: event,
-              });
+        setUpdateForm({
+            ...updateForm,
+            [event.target.name]: event.target.value,
+        });
     };
 
-    const { phone, name, address, categories } = updateForm;
-
-    const [alert, setAlert] = useState(null);
+    const { avatar, phone, name, address, timeOpen, timeClose, categories } =
+        updateForm;
 
     const handleUpdateStore = async () => {
         // console.log(updateForm);
         try {
             const updateData = await updateStore(updateForm);
-            setAlert({
-                type: updateData.success ? "success" : "error",
-                message: updateData.message,
-            });
-            setTimeout(() => setAlert(null), 3000);
+
+            updateData.success
+                ? message.success(updateData.message)
+                : message.error(updateData.message);
 
             // console.log(updateData);
         } catch (error) {
@@ -132,7 +128,27 @@ function Store() {
     ];
 
     const normFile = (e) => {
-        console.log("Upload event:", e);
+        // console.log("Upload event:", e.file);
+        deleteImage(avatar)
+            .then((res) => {
+                if (res.data.success) {
+                    uploadImage(e.file)
+                        .then((res) =>
+                            setUpdateForm({
+                                ...updateForm,
+                                avatar: res.data.avatar,
+                            })
+                        )
+                        .catch((error) => {
+                            message.error(error);
+                        });
+                } else {
+                    message.error(res.data.message);
+                }
+            })
+            .catch((error) => {
+                message.error(error);
+            });
 
         if (Array.isArray(e)) {
             return e;
@@ -162,19 +178,13 @@ function Store() {
 
     return (
         <Row>
-            {alert ? (
-                <div style={{ position: "absolute", top: 20, right: 0 }}>
-                    <Alert {...alert} showIcon />
-                </div>
-            ) : null}
-
             <Col span={12} offset={6}>
                 <Row justify="center" style={{ marginBottom: 30 }}>
                     <Image
                         // width={150}
                         height={150}
                         size="cover"
-                        src={store.avatar}
+                        src={avatar}
                     />
                 </Row>
                 <Form
@@ -199,12 +209,6 @@ function Store() {
                         label="Ảnh đại diện"
                         valuePropName="fileList"
                         getValueFromEvent={normFile}
-                        rules={[
-                            {
-                                required: true,
-                                message: "Vui lòng chọn ảnh đại diện",
-                            },
-                        ]}
                     >
                         <Upload
                             name="avatar"
@@ -274,13 +278,13 @@ function Store() {
                     >
                         <TimePicker
                             name="timeOpen"
-                            // value={moment(timeOpen, "HH:mm:ss")}
-                            // onChange={(a, b) =>
-                            //     setRegisterForm({
-                            //         ...registerForm,
-                            //         timeOpen: b,
-                            //     })
-                            // }
+                            value={moment(timeOpen, "HH:mm:ss")}
+                            onChange={(a, b) =>
+                                setUpdateForm({
+                                    ...updateForm,
+                                    timeOpen: b,
+                                })
+                            }
                         />
                     </Form.Item>
 
@@ -297,13 +301,13 @@ function Store() {
                     >
                         <TimePicker
                             name="timeClose"
-                            // value={moment(timeClose, "HH:mm:ss")}
-                            // onChange={(a, b) =>
-                            //     setRegisterForm({
-                            //         ...registerForm,
-                            //         timeClose: b,
-                            //     })
-                            // }
+                            value={moment(timeClose, "HH:mm:ss")}
+                            onChange={(a, b) =>
+                                setUpdateForm({
+                                    ...updateForm,
+                                    timeClose: b,
+                                })
+                            }
                         />
                     </Form.Item>
 
@@ -322,7 +326,12 @@ function Store() {
                             allowClear
                             placeholder="Chọn danh mục sản phẩm"
                             value={categories}
-                            onChange={onChangeUpdateForm}
+                            onChange={(listCate) =>
+                                setUpdateForm({
+                                    ...updateForm,
+                                    categories: listCate,
+                                })
+                            }
                         >
                             {categoriesData.map((item) => (
                                 <Select.Option key={item.id} value={item.name}>

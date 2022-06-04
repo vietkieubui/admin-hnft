@@ -1,3 +1,4 @@
+import { UploadOutlined } from "@ant-design/icons";
 import {
     Button,
     Col,
@@ -9,23 +10,21 @@ import {
     TimePicker,
     Upload,
 } from "antd";
-import { useNavigate } from "react-router-dom";
-import { COLORS } from "./../../../assets/constants/index";
-import React, { useContext, useState } from "react";
-import { AuthContext } from "../../../contexts/AuthContext";
-import { Alert } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
 import moment from "moment";
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../contexts/AuthContext";
+import { COLORS } from "./../../../assets/constants/index";
 
 export default function Register() {
     const navigate = useNavigate();
 
     // Context
-    const { registerStore, uploadFile } = useContext(AuthContext);
+    const { registerStore, uploadImage } = useContext(AuthContext);
 
     // Local state
-    const [avatar, setAvatar] = useState(null);
     const [registerForm, setRegisterForm] = useState({
+        avatar: "",
         phone: "",
         password: "",
         confirmPassword: "",
@@ -55,46 +54,34 @@ export default function Register() {
         categories,
     } = registerForm;
 
-    const [alert, setAlert] = useState(null);
-
     const handleRegister = async () => {
         if (password !== confirmPassword) {
-            setAlert({
-                type: "error",
-                message: "Mật khẩu và mật khẩu xác nhận không giống nhau",
-            });
-            setTimeout(() => setAlert(null), 3000);
+            message.error("Mật khẩu và mật khẩu xác nhận không giống nhau");
         } else {
             try {
                 const registerData = await registerStore(registerForm);
-
-                if (!registerData.success) {
-                    setAlert({ type: "error", message: registerData.message });
-                    setTimeout(() => setAlert(null), 3000);
+                // console.log(registerData)
+                if (registerData && !registerData.success) {
+                    message.error(registerData.message);
                 }
-                // else {
-                //     const uploadFileData = await uploadFile(avatar);
-                //     if (!uploadFileData.success) {
-                //         setAlert({
-                //             type: "error",
-                //             message: uploadFileData.message,
-                //         });
-                //         setTimeout(() => setAlert(null), 3000);
-                //     }
-                // }
-                console.log(registerData);
+                // console.log(registerData);
             } catch (error) {
                 console.log(error);
             }
         }
     };
 
-    console.log(registerForm);
-    console.log(avatar);
+    // console.log(registerForm);
 
     const normFile = (e) => {
-        console.log("Upload event:", e.file);
-        setAvatar(e.file);
+        // console.log("Upload event:", e.file);
+        uploadImage(e.file)
+            .then((res) =>
+                setRegisterForm({ ...registerForm, avatar: res.data.avatar })
+            )
+            .catch((error) => {
+                message.error(error);
+            });
 
         if (Array.isArray(e)) {
             return e;
@@ -125,18 +112,6 @@ export default function Register() {
     return (
         <>
             <Row justify="center" align="middle" style={{ height: "100vh" }}>
-                {alert ? (
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: 20,
-                            right: 0,
-                            zIndex: 999,
-                        }}
-                    >
-                        <Alert {...alert} showIcon />
-                    </div>
-                ) : null}
                 <Col span={10}>
                     <p style={{ textAlign: "center", fontSize: 24 }}>
                         Đăng ký cửa hàng
@@ -149,16 +124,6 @@ export default function Register() {
                         autoComplete="off"
                         onFinish={handleRegister}
                     >
-                        <input
-                            type="file"
-                            onChange={(e) => {
-                                let url = "https://<server-url>/api/upload";
-                                let file = e.target.files[0];
-                                console.log("url: ", url);
-                                console.log("file: ", file);
-                            }}
-                            accept="image/*"
-                        />
                         <Form.Item
                             name="avatar"
                             label="Ảnh đại diện"
@@ -172,7 +137,6 @@ export default function Register() {
                             ]}
                         >
                             <Upload
-                                name="avatar"
                                 listType="picture"
                                 maxCount={1}
                                 beforeUpload={beforeUpload}

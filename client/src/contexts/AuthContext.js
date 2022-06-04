@@ -13,28 +13,18 @@ const AuthContextProvider = ({ children }) => {
         store: null,
     });
 
-    const uploadFile = (file) => {
+    const uploadImage = (file) => {
         let formData = new FormData();
-        formData.append("file", file);
-        axios
-            .post(`${apiUrl}/images/add`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            })
-            .then((response) => {
-                if (response.data.success) {
-                    dispatch({
-                        type: "UPDATE_STORE",
-                        payload: response.data.avatar,
-                    });
-                }
-            })
-            .catch((error) => {
-                return error.response.data
-                    ? error.response.data
-                    : { success: false, message: "Server error" };
-            });
+        formData.append("photo", file);
+        return axios.post(`${apiUrl}/images/add`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+    };
+
+    const deleteImage = (path) => {
+        return axios.post(`${apiUrl}/images/delete`, { path: path });
     };
 
     // Get store
@@ -151,7 +141,8 @@ const AuthContextProvider = ({ children }) => {
         registerStore,
         updateStore,
         logoutStore,
-        uploadFile,
+        uploadImage,
+        deleteImage,
         authState,
     };
 

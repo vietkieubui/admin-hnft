@@ -1,9 +1,8 @@
-import { Button, Col, Form, Input, Row } from "antd";
+import { Button, Col, Form, Input, message, Row } from "antd";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { COLORS } from "./../../../assets/constants/index";
-import { Alert } from "antd";
 // import img from "../../../assets/images/bglogin.jpg";
 
 export default function Login() {
@@ -23,14 +22,11 @@ export default function Login() {
 
     const { phone, password } = loginForm;
 
-    const [alert, setAlert] = useState(null);
-
     const handleLogin = async () => {
         try {
             const loginData = await loginStore(loginForm);
-            if (!loginData.success) {
-                setAlert({ type: "error", message: loginData.message });
-                setTimeout(() => setAlert(null), 3000);
+            if (loginData && !loginData.success) {
+                message.error(loginData.message);
             }
             // console.log(loginData);
         } catch (error) {
@@ -50,12 +46,6 @@ export default function Login() {
                 // backgroundSize: "cover",
             }}
         >
-            {alert ? (
-                <div style={{ position: "absolute", top: 20, right: 0 }}>
-                    <Alert {...alert} showIcon />
-                </div>
-            ) : null}
-
             <Col
                 span={8}
                 // style={{

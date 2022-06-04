@@ -152,17 +152,16 @@ router.get("/store", verifyToken, async (req, res) => {
 // @register store
 // @public
 router.post("/store/register", async (req, res) => {
-    const { phone, password, name, address, timeOpen, timeClose, categories } =
-        req.body;
-    // console.log(req.body);
-    // if (!username || !password) {
-    //     return res
-    //         .status(400)
-    //         .json({
-    //             success: false,
-    //             message: "Bạn chưa nhập đầy đủ thông tin",
-    //         });
-    // }
+    const {
+        avatar,
+        phone,
+        password,
+        name,
+        address,
+        timeOpen,
+        timeClose,
+        categories,
+    } = req.body;
 
     try {
         // check for existing user
@@ -175,6 +174,7 @@ router.post("/store/register", async (req, res) => {
 
         const hashedPassword = await argon2.hash(password);
         const newStore = new Store({
+            avatar: avatar,
             phone: phone,
             password: hashedPassword,
             name: name,
@@ -182,7 +182,6 @@ router.post("/store/register", async (req, res) => {
             timeOpen: timeOpen,
             timeClose: timeClose,
             categories: categories,
-            avatar: "",
             foods: [],
         });
 
@@ -265,7 +264,8 @@ router.post("/store/login", async (req, res) => {
 // // @desc Update store
 // // @access Private
 router.put("/store/:id", verifyToken, async (req, res) => {
-    const { phone, name, address, categories } = req.body;
+    const { avatar, phone, name, address, timeOpen, timeClose, categories } =
+        req.body;
 
     // check for existing user
     const store = await Store.findOne({
@@ -280,10 +280,13 @@ router.put("/store/:id", verifyToken, async (req, res) => {
 
     try {
         let updatedStore = {
-            phone: phone,
-            name: name,
-            address: address,
-            categories: categories,
+            avatar,
+            phone,
+            name,
+            address,
+            timeOpen,
+            timeClose,
+            categories,
         };
         // console.log(updatedStore);
         // console.log(req.params.id);

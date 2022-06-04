@@ -10,7 +10,7 @@ const Store = require("../models/Store");
 router.post("/add", upload.single("photo"), async (req, res) => {
     // const { name, birthdate, photo } = req.body;
     try {
-        const filePath = `http://localhost:3000/upload/${req.file.filename}`;
+        const filePath = `http://localhost:3000/upload/store/${req.file.filename}`;
         // let updatedStore = {
         //     avatar: filePath,
         // };
@@ -55,6 +55,36 @@ router.post("/add", upload.single("photo"), async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "upload avatar không thành công",
+        });
+    }
+});
+
+router.post("/delete", async (req, res) => {
+    const { path } = req.body;
+    // console.log(path);
+
+    try {
+        const pathTrue =
+            "../client/public" + path.replace("http://localhost:3000", "");
+        // console.log(pathTrue);
+        const fs = require("fs");
+        fs.unlink(pathTrue, (err) => {
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.syscall,
+                });
+            }
+            res.json({
+                success: true,
+                message: "delete avatar cửa hàng thành công",
+            });
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "delete avatar không thành công",
         });
     }
 });
