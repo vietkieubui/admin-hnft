@@ -24,7 +24,7 @@ const AuthContextProvider = ({ children }) => {
     };
 
     const deleteImage = (path) => {
-        return axios.post(`${apiUrl}/images/delete`, { path: path });
+        axios.post(`${apiUrl}/images/delete`, { path: path });
     };
 
     // Get store

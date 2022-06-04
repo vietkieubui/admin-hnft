@@ -59,6 +59,19 @@ Content-Type: application/json
     "password": "123"
 }
 
+//-----------------------------------------------FOODS-----------------------------------------------
+
+###
+POST http://localhost:5000/foods/add
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdG9yZUlkIjoiNjI5YjVjMTYxNWNkYjcwYjllODE1OWYwIiwiaWF0IjoxNjU0MzUxNzgyfQ.crZu0sS91zwpCC7Ahmu4hJL62nOqbg5GRw0QKqPcP_w
+Content-Type: application/json
+
+{
+    "name": "bun1",
+    "image": "path image",
+    "price": 30000
+}
+
 //-----------------------------------------------ORDER-----------------------------------------------
 
 ###

@@ -20,11 +20,11 @@ export default function Register() {
     const navigate = useNavigate();
 
     // Context
-    const { registerStore, uploadImage } = useContext(AuthContext);
+    const { registerStore, uploadImage, deleteImage } = useContext(AuthContext);
 
     // Local state
     const [registerForm, setRegisterForm] = useState({
-        avatar: "",
+        avatar: null,
         phone: "",
         password: "",
         confirmPassword: "",
@@ -44,6 +44,7 @@ export default function Register() {
     };
 
     const {
+        avatar,
         phone,
         password,
         confirmPassword,
@@ -71,23 +72,31 @@ export default function Register() {
         }
     };
 
-    // console.log(registerForm);
+    console.log(registerForm);
 
     const normFile = (e) => {
         // console.log("Upload event:", e.file);
-        uploadImage(e.file)
-            .then((res) =>
-                setRegisterForm({ ...registerForm, avatar: res.data.avatar })
-            )
-            .catch((error) => {
-                message.error(error);
-            });
 
         if (Array.isArray(e)) {
             return e;
         }
 
         return e?.fileList;
+    };
+
+    const handleOnChangeAvatar = (e) => {
+        const file = e.target.files[0];
+        console.log(file);
+
+        avatar && deleteImage(avatar);
+
+        uploadImage(file)
+            .then((res) => {
+                setRegisterForm({ ...registerForm, avatar: res.data });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     const beforeUpload = (file) => {
@@ -129,6 +138,7 @@ export default function Register() {
                             label="Ảnh đại diện"
                             valuePropName="fileList"
                             getValueFromEvent={normFile}
+                            onChange={handleOnChangeAvatar}
                             rules={[
                                 {
                                     required: true,

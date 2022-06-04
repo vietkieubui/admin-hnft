@@ -6,6 +6,7 @@ const cors = require("cors");
 const upload = require("./constants/upload");
 const imagesRouter = require("./routes/img");
 const ordersRouter = require("./routes/orders");
+const foodsRouter = require("./routes/foods");
 
 const connectdb = async () => {
     try {
@@ -33,6 +34,7 @@ app.use(cors());
 app.use("/auth", authRouter);
 app.use("/images", imagesRouter);
 app.use("/orders", ordersRouter);
+app.use("/foods", foodsRouter);
 
 // app.get("/", (req, res) => {
 //   ImgModel.find({}, (err, items) => {

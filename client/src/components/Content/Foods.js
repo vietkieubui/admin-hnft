@@ -4,6 +4,7 @@ import {
     Form,
     Image,
     Input,
+    message,
     Modal,
     Radio,
     Space,
@@ -52,16 +53,6 @@ export default function FoodTable() {
         console.log(item);
         setDataEditForm(item);
         setShowEditModal(true);
-    };
-
-    const normFile = (e) => {
-        console.log("Upload event:", e);
-
-        if (Array.isArray(e)) {
-            return e;
-        }
-
-        return e?.fileList;
     };
 
     const data = [
@@ -172,6 +163,35 @@ export default function FoodTable() {
         },
     ];
 
+    const beforeUpload = (file) => {
+        const isJpgOrPng =
+            file.type === "image/jpeg" || file.type === "image/png";
+
+        if (!isJpgOrPng) {
+            message.error("Chỉ có thể chọn file JPG hoặc PNG");
+            return Upload.LIST_IGNORE;
+        }
+
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isLt2M) {
+            message.error("Hình ảnh phải bé hơn 2MB");
+            return Upload.LIST_IGNORE;
+        }
+
+        return false;
+    };
+
+    const normFile = (e) => {
+        console.log("Upload event:", e.file);
+
+        if (Array.isArray(e)) {
+            return e;
+        }
+
+        return e?.fileList;
+    };
+
     // console.log(dataEditForm);
 
     return (
@@ -233,7 +253,7 @@ export default function FoodTable() {
                 >
                     <Form.Item
                         name="image"
-                        label="Hình ảnh"
+                        label="Ảnh món ăn"
                         valuePropName="fileList"
                         getValueFromEvent={normFile}
                         rules={[
@@ -244,9 +264,10 @@ export default function FoodTable() {
                         ]}
                     >
                         <Upload
-                            name="logo"
-                            action="/upload.do"
+                            name="image"
                             listType="picture"
+                            maxCount={1}
+                            beforeUpload={beforeUpload}
                         >
                             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                         </Upload>
