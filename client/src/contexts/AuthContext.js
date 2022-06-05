@@ -117,6 +117,7 @@ const AuthContextProvider = ({ children }) => {
                     type: "UPDATE_STORE",
                     payload: response.data.store,
                 });
+                loadStore();
                 return response.data;
             }
         } catch (error) {

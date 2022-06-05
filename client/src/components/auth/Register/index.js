@@ -86,12 +86,13 @@ export default function Register() {
 
     const handleOnChangeAvatar = (e) => {
         const file = e.target.files[0];
-        console.log(file);
+        // console.log(file);
 
         avatar && deleteImage(avatar);
 
         uploadImage(file)
             .then((res) => {
+                console.log("then");
                 setRegisterForm({ ...registerForm, avatar: res.data });
             })
             .catch((error) => {

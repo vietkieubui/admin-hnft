@@ -23,7 +23,7 @@ function Store() {
         deleteImage,
     } = useContext(AuthContext);
 
-    // console.log("Store:", store);
+    console.log("Store:", store);
     // Local state
     const [updateForm, setUpdateForm] = useState({
         ...store,
@@ -157,6 +157,22 @@ function Store() {
         return e?.fileList;
     };
 
+    const handleOnChangeAvatar = (e) => {
+        const file = e.target.files[0];
+        // console.log(file);
+
+        avatar && deleteImage(avatar);
+
+        uploadImage(file)
+            .then((res) => {
+                console.log("then");
+                setUpdateForm({ ...updateForm, avatar: res.data });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
     const beforeUpload = (file) => {
         const isJpgOrPng =
             file.type === "image/jpeg" || file.type === "image/png";
@@ -215,6 +231,7 @@ function Store() {
                             listType="picture"
                             maxCount={1}
                             beforeUpload={beforeUpload}
+                            onChange={handleOnChangeAvatar}
                         >
                             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                         </Upload>
