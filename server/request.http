@@ -95,13 +95,6 @@ Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjYzY2I
 }
 
 //-----------------------------------------------UPLOAD-----------------------------------------------
-###
-POST http://localhost:5000/images/add/629799dbf89ed5d7c51264fa
-Content-Type: application/json
-
-{
-    "photo": "C:/Users/Administrator/Desktop/admin-hnft/client/src/assets/images"
-}
 
 ###
 POST http://localhost:5000/images/delete
@@ -110,3 +103,12 @@ Content-Type: application/json
 {
     "path": "http://localhost:3000/upload/store/028e8b2d-130d-42f1-9bab-be8fe8f07b4d-1654327518975.png"
 }
+
+//-----------------------------------------------GET-----------------------------------------------
+###
+GET http://localhost:5000/get/stores/Chè
+# Content-Type: application/json
+
+# {
+#     "category": "Bún"
+# }

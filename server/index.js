@@ -7,6 +7,7 @@ const upload = require("./constants/upload");
 const imagesRouter = require("./routes/img");
 const ordersRouter = require("./routes/orders");
 const foodsRouter = require("./routes/foods");
+const getRouter = require("./routes/get");
 
 const connectdb = async () => {
     try {
@@ -36,6 +37,7 @@ app.use("/images", imagesRouter);
 app.use("/orders", ordersRouter);
 app.use("/foods", foodsRouter);
 
+app.use("/get", getRouter);
 // app.get("/", (req, res) => {
 //   ImgModel.find({}, (err, items) => {
 //     if (err) {
