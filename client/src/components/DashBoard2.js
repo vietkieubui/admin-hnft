@@ -18,6 +18,22 @@ import Store from "./Content/Store";
 
 const { Sider, Content } = Layout;
 
+const keyNav = () => {
+    const path = window.location.pathname.replace("/dashboard/", "");
+    switch (path) {
+        case "store":
+            return "1";
+        case "food":
+            return "2";
+        case "order":
+            return "3";
+        case "statistic":
+            return "4";
+        default:
+            break;
+    }
+};
+
 const App = () => {
     const navigate = useNavigate();
     const { logoutStore } = useContext(AuthContext);
@@ -30,7 +46,7 @@ const App = () => {
                     style={{ marginTop: 20 }}
                     theme="dark"
                     mode="inline"
-                    defaultSelectedKeys={["1"]}
+                    defaultSelectedKeys={[keyNav() || "1"]}
                     items={[
                         {
                             key: "1",

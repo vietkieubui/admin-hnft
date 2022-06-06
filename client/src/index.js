@@ -4,14 +4,17 @@ import "./assets/styles/index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import AuthContextProvider from "./contexts/AuthContext";
+import FoodsContextProvider from "./contexts/FoodsContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <AuthContextProvider>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </AuthContextProvider>
+    <AuthContextProvider>
+        <FoodsContextProvider>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </FoodsContextProvider>
+    </AuthContextProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

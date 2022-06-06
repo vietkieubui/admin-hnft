@@ -6,48 +6,69 @@ import {
     Input,
     message,
     Modal,
+    Popconfirm,
     Radio,
     Space,
+    Spin,
     Table,
     Tag,
     Upload,
 } from "antd";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { FoodsContext } from "../../contexts/FoodsContext";
 // import { Modal } from "react-bootstrap";
 
-export default function FoodTable() {
-    const [dataAddForm, setDataAddForm] = useState({ name: "", price: "" });
+export default function Food() {
+    const {
+        foodsState: { foods, foodsLoading },
+        addFood,
+        getFoods,
+        deleteFood,
+        updateFood,
+    } = useContext(FoodsContext);
+
+    // Start: Get all posts
+    useEffect(() => getFoods(), [getFoods]);
+
+    // console.log(foods);
+
+    const [dataAddForm, setDataAddForm] = useState({
+        image: "",
+        name: "",
+        price: "",
+    });
     const [dataEditForm, setDataEditForm] = useState({});
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
-    const [loading, setLoading] = useState(false);
-
-    const handleUpdateFood = () => {
+    const handleUpdateFood = async () => {
         //call API
         console.log(dataEditForm);
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
+
+        const res = await updateFood(dataEditForm);
+        if (res.success) {
+            message.success(res.message);
             setShowEditModal(false);
-        }, 2000);
+        } else {
+            message.error(res.message);
+        }
     };
 
-    const handleAddFood = () => {
+    const handleAddFood = async () => {
         //call API
-        console.log(dataAddForm);
+        // console.log(dataAddForm);
 
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
+        const res = await addFood(dataAddForm);
+        if (res.success) {
+            message.success(res.message);
+            setDataAddForm({ image: "", name: "", price: "" });
             setShowAddModal(false);
-        }, 2000);
+        } else {
+            message.error(res.message);
+        }
     };
 
-    const handleDeleteFood = (foodId) => {
-        //call API
-        console.log(foodId);
-    };
+    // console.log(dataAddForm);
 
     const handleShowEditModal = (item) => {
         console.log(item);
@@ -55,46 +76,15 @@ export default function FoodTable() {
         setShowEditModal(true);
     };
 
-    const data = [
-        {
-            key: "44",
-            id: "47134823195234",
-            name: "bun cha 1",
-            image: "https://delightfulplate.com/wp-content/uploads/2018/08/Vietnamese-Grilled-Pork-Meatballs-with-Vermicelli-Noodles-Bun-Cha-2.jpg",
-            price: 30000,
-            status: false,
-        },
-        {
-            key: "28",
-            id: "47134823195235",
-            name: "bun cha 2",
-            image: "https://delightfulplate.com/wp-content/uploads/2018/08/Vietnamese-Grilled-Pork-Meatballs-with-Vermicelli-Noodles-Bun-Cha-2.jpg",
-            price: 40000,
-            status: true,
-        },
-        {
-            key: "53",
-            id: "47134823195233",
-            name: "bun cha 3",
-            image: "https://delightfulplate.com/wp-content/uploads/2018/08/Vietnamese-Grilled-Pork-Meatballs-with-Vermicelli-Noodles-Bun-Cha-2.jpg",
-            price: 30000,
-            status: true,
-        },
-        {
-            key: "86",
-            id: "47134823195231",
-            name: "bun cha4",
-            image: "https://delightfulplate.com/wp-content/uploads/2018/08/Vietnamese-Grilled-Pork-Meatballs-with-Vermicelli-Noodles-Bun-Cha-2.jpg",
-            price: 30000,
-            status: true,
-        },
-    ];
+    const foodsData = foods.map((food) => {
+        return { ...food, key: food._id };
+    });
 
     const columns = [
         {
             title: "ID",
-            dataIndex: "id",
-            key: "id",
+            dataIndex: "_id",
+            key: "_id",
         },
         {
             title: "Tên món",
@@ -124,15 +114,13 @@ export default function FoodTable() {
             dataIndex: "status",
             width: 100,
             render: (_, { status }) => {
-                let tag = "HẾT HÀNG";
-                let color = "volcano";
-                if (status) {
-                    tag = "CÒN HÀNG";
-                    color = "green";
-                }
                 return (
-                    <Tag color={color} key={tag}>
-                        {tag}
+                    <Tag
+                        style={{ width: 80, textAlign: "center" }}
+                        color={status === "CÒN HÀNG" ? "green" : "volcano"}
+                        key={status}
+                    >
+                        {status}
                     </Tag>
                 );
             },
@@ -151,13 +139,22 @@ export default function FoodTable() {
                     >
                         Sửa
                     </Button>
-                    <Button
+                    <Popconfirm
+                        title="Xóa món này ?"
+                        placement="left"
+                        onConfirm={() => deleteFood(record._id)}
+                    >
+                        <Button type="primary" danger>
+                            Xóa
+                        </Button>
+                    </Popconfirm>
+                    {/* <Button
                         type="primary"
                         danger
-                        onClick={() => handleDeleteFood(record.id)}
+                        onClick={() => deleteFood(record._id)}
                     >
                         Xóa
-                    </Button>
+                    </Button> */}
                 </Space>
             ),
         },
@@ -227,19 +224,14 @@ export default function FoodTable() {
             <Modal
                 visible={showAddModal}
                 title="Thêm món ăn"
-                // transitionName="zoom"
-                // maskTransitionName="zoom"
+                transitionName=""
+                maskTransitionName=""
                 onCancel={() => setShowAddModal(false)}
                 footer={[
                     <Button key="back" onClick={() => setShowAddModal(false)}>
                         Đóng
                     </Button>,
-                    <Button
-                        key="submit"
-                        type="primary"
-                        loading={loading}
-                        onClick={handleAddFood}
-                    >
+                    <Button key="submit" type="primary" onClick={handleAddFood}>
                         Thêm món
                     </Button>,
                 ]}
@@ -248,20 +240,24 @@ export default function FoodTable() {
                     name="basic"
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 20 }}
+                    fields={[
+                        { name: "name", value: dataAddForm.name },
+                        { name: "price", value: dataAddForm.price },
+                    ]}
                     initialValues={{ remember: true }}
                     autoComplete="off"
                 >
                     <Form.Item
                         name="image"
-                        label="Ảnh món ăn"
+                        label="Ảnh"
                         valuePropName="fileList"
                         getValueFromEvent={normFile}
-                        rules={[
-                            {
-                                required: true,
-                                message: "Vui lòng chọn ảnh món ăn",
-                            },
-                        ]}
+                        // rules={[
+                        //     {
+                        //         required: true,
+                        //         message: "Vui lòng chọn ảnh món ăn",
+                        //     },
+                        // ]}
                     >
                         <Upload
                             name="image"
@@ -282,7 +278,6 @@ export default function FoodTable() {
                                 message: "Vui lòng nhập tên món ăn",
                             },
                         ]}
-                        value={dataAddForm.name}
                         onChange={(e) =>
                             setDataAddForm({
                                 ...dataAddForm,
@@ -302,7 +297,6 @@ export default function FoodTable() {
                                 message: "Vui lòng nhập giá món ăn!",
                             },
                         ]}
-                        value={dataAddForm.price}
                         onChange={(e) =>
                             setDataAddForm({
                                 ...dataAddForm,
@@ -319,6 +313,8 @@ export default function FoodTable() {
             <Modal
                 visible={showEditModal}
                 title="Cập nhật món ăn"
+                transitionName=""
+                maskTransitionName=""
                 onCancel={() => setShowEditModal(false)}
                 footer={[
                     <Button key="back" onClick={() => setShowEditModal(false)}>
@@ -327,7 +323,6 @@ export default function FoodTable() {
                     <Button
                         key="submit"
                         type="primary"
-                        loading={loading}
                         onClick={handleUpdateFood}
                     >
                         Lưu thay đổi
@@ -338,11 +333,17 @@ export default function FoodTable() {
                     name="basic"
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 20 }}
+                    fields={[
+                        { name: "_id", value: dataEditForm._id },
+                        { name: "name", value: dataEditForm.name },
+                        { name: "price", value: dataEditForm.price },
+                        { name: "status", value: dataEditForm.status },
+                    ]}
                     initialValues={{ remember: true, ...dataEditForm }}
                     autoComplete="off"
                     // onFinish={handleUpdateFood}
                 >
-                    <Form.Item label="ID" name="id">
+                    <Form.Item label="ID" name="_id">
                         <Input disabled />
                     </Form.Item>
                     <Form.Item
@@ -357,7 +358,6 @@ export default function FoodTable() {
                     >
                         <Input
                             name="name"
-                            value={dataEditForm.name}
                             onChange={(e) =>
                                 setDataEditForm({
                                     ...dataEditForm,
@@ -407,7 +407,6 @@ export default function FoodTable() {
                     >
                         <Input
                             name="price"
-                            value={dataEditForm.price}
                             onChange={(e) =>
                                 setDataEditForm({
                                     ...dataEditForm,
@@ -416,25 +415,39 @@ export default function FoodTable() {
                             }
                         />
                     </Form.Item>
-                    <Form.Item label="Trạng thái" name="status">
-                        <Radio.Group
-                            name="status"
-                            onChange={(e) =>
-                                setDataEditForm({
-                                    ...dataEditForm,
-                                    status: e.target.value,
-                                })
-                            }
-                            value={dataEditForm.status}
-                        >
-                            <Radio value={true}>CÒN HÀNG</Radio>
-                            <Radio value={false}>HẾT HÀNG</Radio>
+
+                    <Form.Item
+                        label="Trạng thái"
+                        name="status"
+                        onChange={(e) =>
+                            setDataEditForm({
+                                ...dataEditForm,
+                                status: e.target.value,
+                            })
+                        }
+                    >
+                        <Radio.Group>
+                            <Radio value={"CÒN HÀNG"}>CÒN HÀNG</Radio>
+                            <Radio value={"HẾT HÀNG"}>HẾT HÀNG</Radio>
                         </Radio.Group>
                     </Form.Item>
                 </Form>
             </Modal>
 
-            <Table bordered columns={columns} dataSource={data} />
+            {foodsLoading ? (
+                <div
+                    style={{
+                        height: "100vh",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    <Spin />
+                </div>
+            ) : (
+                <Table bordered columns={columns} dataSource={foodsData} />
+            )}
         </div>
     );
 }
