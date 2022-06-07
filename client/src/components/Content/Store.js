@@ -23,11 +23,13 @@ function Store() {
         deleteImage,
     } = useContext(AuthContext);
 
-    console.log("Store:", store);
+    // console.log("Store:", store);
     // Local state
     const [updateForm, setUpdateForm] = useState({
         ...store,
     });
+
+    const [file, setFile] = useState(null);
 
     // console.log("UpdateForm:", updateForm);
 
@@ -42,19 +44,25 @@ function Store() {
     const { avatar, phone, name, address, timeOpen, timeClose, categories } =
         updateForm;
 
-    const handleUpdateStore = async () => {
+    const handleUpdateStore = () => {
         // console.log(updateForm);
-        try {
-            const updateData = await updateStore(updateForm);
-
-            updateData.success
-                ? message.success(updateData.message)
-                : message.error(updateData.message);
-
-            // console.log(updateData);
-        } catch (error) {
-            console.log(error);
-        }
+        file &&
+            uploadImage(file)
+                .then((res) => {
+                    return updateStore({ ...updateForm, avatar: res.data });
+                })
+                .then((res) => {
+                    if (res.success) {
+                        message.success(res.message);
+                        updateForm.avatar && deleteImage(updateForm.avatar);
+                    } else {
+                        message.error(res.message);
+                        res.avatar && deleteImage(res.avatar);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
     };
 
     const categoriesData = [
@@ -129,26 +137,6 @@ function Store() {
 
     const normFile = (e) => {
         // console.log("Upload event:", e.file);
-        deleteImage(avatar)
-            .then((res) => {
-                if (res.data.success) {
-                    uploadImage(e.file)
-                        .then((res) =>
-                            setUpdateForm({
-                                ...updateForm,
-                                avatar: res.data.avatar,
-                            })
-                        )
-                        .catch((error) => {
-                            message.error(error);
-                        });
-                } else {
-                    message.error(res.data.message);
-                }
-            })
-            .catch((error) => {
-                message.error(error);
-            });
 
         if (Array.isArray(e)) {
             return e;
@@ -161,16 +149,18 @@ function Store() {
         const file = e.target.files[0];
         // console.log(file);
 
-        avatar && deleteImage(avatar);
+        setFile(file);
 
-        uploadImage(file)
-            .then((res) => {
-                console.log("then");
-                setUpdateForm({ ...updateForm, avatar: res.data });
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        // avatar && deleteImage(avatar);
+
+        // file &&
+        //     uploadImage(file)
+        //         .then((res) => {
+        //             setUpdateForm({ ...updateForm, avatar: res.data });
+        //         })
+        //         .catch((error) => {
+        //             console.log(error);
+        //         });
     };
 
     const beforeUpload = (file) => {
@@ -200,7 +190,7 @@ function Store() {
                         // width={150}
                         height={150}
                         size="cover"
-                        src={avatar}
+                        src={store.avatar}
                     />
                 </Row>
                 <Form
@@ -225,13 +215,13 @@ function Store() {
                         label="Ảnh đại diện"
                         valuePropName="fileList"
                         getValueFromEvent={normFile}
+                        onChange={handleOnChangeAvatar}
                     >
                         <Upload
                             name="avatar"
                             listType="picture"
                             maxCount={1}
                             beforeUpload={beforeUpload}
-                            onChange={handleOnChangeAvatar}
                         >
                             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                         </Upload>

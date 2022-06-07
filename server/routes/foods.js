@@ -36,11 +36,12 @@ router.post("/add", verifyToken, async (req, res) => {
     const { name, image, price } = req.body;
     try {
         // Check for existing user
-        const food = await Foods.findOne({ _id: req.storeId, name });
+        const food = await Foods.findOne({ store: req.storeId, name });
         if (food)
             return res.status(400).json({
                 success: false,
                 message: "Tên món đã tồn tại",
+                foods: req.body,
             });
 
         // All good
@@ -101,6 +102,7 @@ router.put("/update/:id", verifyToken, async (req, res) => {
         return res.status(400).json({
             success: false,
             message: "Tên món ăn đã được sử dụng",
+            foods: req.body,
         });
 
     try {

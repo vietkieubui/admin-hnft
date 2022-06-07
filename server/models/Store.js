@@ -32,9 +32,6 @@ const StoreSchema = new Schema({
         type: String,
         // require: true,
     },
-    foods: {
-        type: Array,
-    },
     createAt: {
         type: Date,
         default: Date.now(),

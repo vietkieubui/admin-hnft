@@ -3,7 +3,7 @@ const router = express.Router();
 let path = require("path");
 const Images = require("../models/ImgModel");
 const upload = require("../constants/upload");
-const Store = require("../models/Store");
+const upload_new = require("../middleware/upload");
 const fs = require("fs");
 const { promisify } = require("util");
 const unlinkAsync = promisify(fs.unlink);
@@ -29,6 +29,12 @@ router.post("/delete", async (req, res) => {
             return;
         }
     });
+});
+
+router.post("/upload", upload_new.single("file"), async (req, res) => {
+    if (req.file === undefined) return res.send("you must select a file.");
+    const imgUrl = `http://localhost:5000/images/${req.file.filename}`;
+    return res.send(imgUrl);
 });
 
 module.exports = router;

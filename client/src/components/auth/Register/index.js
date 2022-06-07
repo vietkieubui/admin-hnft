@@ -35,6 +35,8 @@ export default function Register() {
         categories: [],
     });
 
+    const [file, setFile] = useState(null);
+
     const onChangeRegisterForm = (event) => {
         // console.log(event);
         setRegisterForm({
@@ -44,7 +46,6 @@ export default function Register() {
     };
 
     const {
-        avatar,
         phone,
         password,
         confirmPassword,
@@ -55,20 +56,27 @@ export default function Register() {
         categories,
     } = registerForm;
 
-    const handleRegister = async () => {
+    const handleRegister = () => {
         if (password !== confirmPassword) {
             message.error("Mật khẩu và mật khẩu xác nhận không giống nhau");
         } else {
-            try {
-                const registerData = await registerStore(registerForm);
-                // console.log(registerData)
-                if (registerData && !registerData.success) {
-                    message.error(registerData.message);
-                }
-                // console.log(registerData);
-            } catch (error) {
-                console.log(error);
-            }
+            file &&
+                uploadImage(file)
+                    .then((res) => {
+                        return registerStore({
+                            ...registerForm,
+                            avatar: res.data,
+                        });
+                    })
+                    .then((res) => {
+                        if (!res.success) {
+                            message.error(res.message);
+                            res.avatar && deleteImage(res.avatar);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
         }
     };
 
@@ -87,17 +95,18 @@ export default function Register() {
     const handleOnChangeAvatar = (e) => {
         const file = e.target.files[0];
         // console.log(file);
+        setFile(file);
 
-        avatar && deleteImage(avatar);
+        // avatar && deleteImage(avatar);
 
-        uploadImage(file)
-            .then((res) => {
-                console.log("then");
-                setRegisterForm({ ...registerForm, avatar: res.data });
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        // file &&
+        //     uploadImage(file)
+        //         .then((res) => {
+        //             setRegisterForm({ ...registerForm, avatar: res.data });
+        //         })
+        //         .catch((error) => {
+        //             console.log(error);
+        //         });
     };
 
     const beforeUpload = (file) => {

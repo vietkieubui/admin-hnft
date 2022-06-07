@@ -13,18 +13,37 @@ const AuthContextProvider = ({ children }) => {
         store: null,
     });
 
+    // const uploadImage = (file) => {
+    //     let formData = new FormData();
+    //     formData.append("photo", file);
+    //     return axios.post(`${apiUrl}/images/add`, formData, {
+    //         headers: {
+    //             "Content-Type": "multipart/form-data",
+    //         },
+    //     });
+    // };
+
     const uploadImage = (file) => {
         let formData = new FormData();
-        formData.append("photo", file);
-        return axios.post(`${apiUrl}/images/add`, formData, {
+        formData.append("file", file);
+        return axios.post(`${apiUrl}/images/upload`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
     };
 
-    const deleteImage = (path) => {
-        axios.post(`${apiUrl}/images/delete`, { path: path });
+    // const deleteImage = (path) => {
+    //     axios.post(`${apiUrl}/images/delete`, { path: path });
+    // };
+
+    const deleteImage = (fileName) => {
+        axios.delete(
+            `${apiUrl}/images/${fileName.replace(
+                "http://localhost:5000/images/",
+                ""
+            )}`
+        );
     };
 
     // Get store

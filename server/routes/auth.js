@@ -170,6 +170,7 @@ router.post("/store/register", async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "Số điện thoại đã được sử dụng",
+                avatar: avatar,
             });
 
         const hashedPassword = await argon2.hash(password);
@@ -182,7 +183,6 @@ router.post("/store/register", async (req, res) => {
             timeOpen: timeOpen,
             timeClose: timeClose,
             categories: categories,
-            foods: [],
         });
 
         // console.log(newStore);
@@ -276,6 +276,7 @@ router.put("/store/:id", verifyToken, async (req, res) => {
         return res.status(400).json({
             success: false,
             message: "Số điện thoại đã được sử dụng",
+            avatar: avatar,
         });
 
     try {
@@ -308,6 +309,7 @@ router.put("/store/:id", verifyToken, async (req, res) => {
             return res.status(401).json({
                 success: false,
                 message: "Cửa hàng không tồn tại",
+                avatar: avatar,
             });
 
         res.json({

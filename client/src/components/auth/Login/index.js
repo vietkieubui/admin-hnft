@@ -44,6 +44,8 @@ export default function Login() {
                 height: "100vh",
                 // backgroundImage: `url(${img})`,
                 // backgroundSize: "cover",
+                // backgroundImage: `url(${process.env.PUBLIC_URL}
+                //     "upload/7ab7cbba-8424-483e-8722-5e8c320ad003-1654607633840.jpg")`,
             }}
         >
             <Col

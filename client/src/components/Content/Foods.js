@@ -15,6 +15,7 @@ import {
     Upload,
 } from "antd";
 import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
 import { FoodsContext } from "../../contexts/FoodsContext";
 // import { Modal } from "react-bootstrap";
 
@@ -27,8 +28,10 @@ export default function Food() {
         updateFood,
     } = useContext(FoodsContext);
 
+    const { uploadImage, deleteImage } = useContext(AuthContext);
+
     // Start: Get all posts
-    useEffect(() => getFoods(), [getFoods]);
+    useEffect(() => getFoods(), []);
 
     // console.log(foods);
 
@@ -37,34 +40,68 @@ export default function Food() {
         name: "",
         price: "",
     });
+    const [file, setFile] = useState(null);
     const [dataEditForm, setDataEditForm] = useState({});
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
-    const handleUpdateFood = async () => {
+    // console.log(dataAddForm);
+
+    const handleUpdateFood = () => {
         //call API
         console.log(dataEditForm);
 
-        const res = await updateFood(dataEditForm);
-        if (res.success) {
-            message.success(res.message);
-            setShowEditModal(false);
-        } else {
-            message.error(res.message);
-        }
+        file &&
+            uploadImage(file)
+                .then((res) => {
+                    return updateFood({ ...dataEditForm, image: res.data });
+                })
+                .then((res) => {
+                    if (res.success) {
+                        message.success(res.message);
+                        dataEditForm.image && deleteImage(dataEditForm.image);
+                        setShowEditModal(false);
+                    } else {
+                        message.error(res.message);
+                        res.foods.image && deleteImage(res.foods.image);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
     };
 
-    const handleAddFood = async () => {
+    const handleAddFood = () => {
         //call API
         // console.log(dataAddForm);
+        console.log(file);
+        file &&
+            uploadImage(file)
+                .then((res) => {
+                    // res && setDataAddForm({ ...dataAddForm, image: res.data });
+                    return addFood({ ...dataAddForm, image: res.data });
+                })
+                .then((res) => {
+                    console.log(res);
+                    if (res.success) {
+                        message.success(res.message);
+                        setDataAddForm({ image: "", name: "", price: "" });
+                        setShowAddModal(false);
+                    } else {
+                        message.error(res.message);
+                        res.foods.image && deleteImage(res.foods.image);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+    };
 
-        const res = await addFood(dataAddForm);
-        if (res.success) {
-            message.success(res.message);
-            setDataAddForm({ image: "", name: "", price: "" });
-            setShowAddModal(false);
-        } else {
-            message.error(res.message);
+    const handleDeleteFood = (record) => {
+        // console.log(record);
+        if (record) {
+            record.image && deleteImage(record.image);
+            record._id && deleteFood(record._id);
         }
     };
 
@@ -74,6 +111,11 @@ export default function Food() {
         console.log(item);
         setDataEditForm(item);
         setShowEditModal(true);
+    };
+
+    const handleCloseAddModal = () => {
+        setShowAddModal(false);
+        setDataAddForm({ image: "", name: "", price: "" });
     };
 
     const foodsData = foods.map((food) => {
@@ -142,7 +184,7 @@ export default function Food() {
                     <Popconfirm
                         title="Xóa món này ?"
                         placement="left"
-                        onConfirm={() => deleteFood(record._id)}
+                        onConfirm={() => handleDeleteFood(record)}
                     >
                         <Button type="primary" danger>
                             Xóa
@@ -180,13 +222,31 @@ export default function Food() {
     };
 
     const normFile = (e) => {
-        console.log("Upload event:", e.file);
+        // console.log("Upload event:", e.file);
 
         if (Array.isArray(e)) {
             return e;
         }
 
         return e?.fileList;
+    };
+
+    const handleOnChangeAvatar = (e) => {
+        const file = e.target.files[0];
+        // console.log(file);
+
+        setFile(file);
+
+        // dataAddForm.image && deleteImage(dataAddForm.image);
+
+        // file &&
+        //     uploadImage(file)
+        //         .then((res) => {
+        //             setDataAddForm({ ...dataAddForm, image: res.data });
+        //         })
+        //         .catch((error) => {
+        //             console.log(error);
+        //         });
     };
 
     // console.log(dataEditForm);
@@ -222,13 +282,14 @@ export default function Food() {
 
             {/* add modal */}
             <Modal
+                destroyOnClose={true}
                 visible={showAddModal}
                 title="Thêm món ăn"
                 transitionName=""
                 maskTransitionName=""
-                onCancel={() => setShowAddModal(false)}
+                onCancel={handleCloseAddModal}
                 footer={[
-                    <Button key="back" onClick={() => setShowAddModal(false)}>
+                    <Button key="back" onClick={handleCloseAddModal}>
                         Đóng
                     </Button>,
                     <Button key="submit" type="primary" onClick={handleAddFood}>
@@ -252,12 +313,13 @@ export default function Food() {
                         label="Ảnh"
                         valuePropName="fileList"
                         getValueFromEvent={normFile}
-                        // rules={[
-                        //     {
-                        //         required: true,
-                        //         message: "Vui lòng chọn ảnh món ăn",
-                        //     },
-                        // ]}
+                        onChange={handleOnChangeAvatar}
+                        rules={[
+                            {
+                                required: true,
+                                message: "Vui lòng chọn ảnh món ăn",
+                            },
+                        ]}
                     >
                         <Upload
                             name="image"
@@ -311,6 +373,7 @@ export default function Food() {
 
             {/* edit modal */}
             <Modal
+                destroyOnClose={true}
                 visible={showEditModal}
                 title="Cập nhật món ăn"
                 transitionName=""
@@ -368,9 +431,10 @@ export default function Food() {
                     </Form.Item>
                     <Form.Item
                         name="image1"
-                        label="Hình ảnh"
+                        label="Ảnh"
                         valuePropName="fileList"
                         getValueFromEvent={normFile}
+                        onChange={handleOnChangeAvatar}
                         rules={[
                             {
                                 required: true,
@@ -380,21 +444,14 @@ export default function Food() {
                     >
                         <Upload
                             name="image1"
-                            // action="/"
                             listType="picture"
-                            onChange={
-                                (e) => console.log(e)
-                                // setDataEditForm({
-                                //     ...dataEditForm,
-                                //     price: e.target.value,
-                                // })
-                            }
+                            maxCount={1}
+                            beforeUpload={beforeUpload}
                         >
-                            <Button icon={<UploadOutlined />}>
-                                Click to upload
-                            </Button>
+                            <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                         </Upload>
                     </Form.Item>
+
                     <Form.Item
                         label="Price"
                         name="price"
