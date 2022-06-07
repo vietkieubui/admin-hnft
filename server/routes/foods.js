@@ -4,6 +4,7 @@ const verifyToken = require("../middleware/auth");
 
 const Foods = require("../models/Foods");
 
+// get food with web
 router.get("/", verifyToken, async (req, res) => {
     try {
         const foods = await Foods.find({ store: req.storeId });
@@ -17,12 +18,25 @@ router.get("/", verifyToken, async (req, res) => {
     }
 });
 
+// get food with app
+router.get("/:storeId", async (req, res) => {
+    try {
+        const foods = await Foods.find({ store: req.params.storeId });
+        res.json({ success: true, foods });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
 router.post("/add", verifyToken, async (req, res) => {
     const { name, image, price } = req.body;
-
     try {
         // Check for existing user
-        const food = await Foods.findOne({ name });
+        const food = await Foods.findOne({ _id: req.storeId, name });
         if (food)
             return res.status(400).json({
                 success: false,
