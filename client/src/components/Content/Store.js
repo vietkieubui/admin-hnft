@@ -54,7 +54,7 @@ function Store() {
                 .then((res) => {
                     if (res.success) {
                         message.success(res.message);
-                        updateForm.avatar && deleteImage(updateForm.avatar);
+                        avatar && deleteImage(avatar);
                     } else {
                         message.error(res.message);
                         res.avatar && deleteImage(res.avatar);
