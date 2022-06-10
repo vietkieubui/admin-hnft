@@ -21,7 +21,7 @@ router.get("/", verifyToken, async (req, res) => {
 // get food with app
 router.get("/:storeId", async (req, res) => {
     try {
-        const foods = await Foods.find({ store: req.params.storeId });
+        const foods = await Foods.find({ store: req.params.storeId, status: "CÒN HÀNG" });
         res.json({ success: true, foods });
     } catch (error) {
         console.log(error);
@@ -36,7 +36,7 @@ router.post("/add", verifyToken, async (req, res) => {
     const { name, image, price } = req.body;
     try {
         // Check for existing user
-        const food = await Foods.findOne({ store: req.storeId, name });
+        const food = await Foods.findOne({ store: req.storeId, name});
         if (food)
             return res.status(400).json({
                 success: false,
