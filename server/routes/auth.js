@@ -3,6 +3,7 @@ const router = express.Router();
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../middleware/auth");
+const verifyTokenUser = require("../middleware/authUser");
 
 const User = require("../models/User");
 const Store = require("../models/Store");
@@ -51,6 +52,72 @@ router.post("/user/register", async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Đăng ký tài khoản không thành công",
+        });
+    }
+});
+
+// @route POST /auth/user/login
+// @login user
+// @public
+
+router.post("/user/login", async (req, res) => {
+    const { phone, password } = req.body;
+
+    try {
+        // Check for existing user
+        const user = await User.findOne({ phone });
+        if (!user)
+            return res.status(400).json({
+                success: false,
+                message: "Tài khoản hoặc mật khẩu chưa đúng",
+            });
+
+        // Username found
+        const passwordValid = await argon2.verify(user.password, password);
+        if (!passwordValid)
+            return res.status(400).json({
+                success: false,
+                message: "Tài khoản hoặc mật khẩu chưa đúng",
+            });
+
+        // All good
+        // Return token
+        const accessToken = jwt.sign(
+            { userId: user._id },
+            process.env.ACCESS_TOKEN_SECRET
+        );
+
+        res.json({
+            success: true,
+            message: "Đăng nhập thành công",
+            accessToken,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
+// @route GET /auth/user
+// @desc Check if user is logged in
+// @access Public
+router.get("/user", verifyTokenUser, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select("-password");
+        // console.log(store);
+        if (!user)
+            return res.status(400).json({
+                success: false,
+                message: "Không tìm thấy người dùng",
+            });
+        res.json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
         });
     }
 });
