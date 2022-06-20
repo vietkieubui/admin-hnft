@@ -7,50 +7,30 @@ const verifyToken = require("../middleware/auth");
 const User = require("../models/User");
 const Store = require("../models/Store");
 
-router.get("/", verifyToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.userId).select("-password");
-        if (!user)
-            return res
-                .status(400)
-                .json({ success: false, message: "User not found" });
-        res.json({ success: true, user });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-});
-
-// @route POST /auth/register
+// @route POST /auth/user/register
 // @register user
 // @public
-router.post("/register", async (req, res) => {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({
-            success: false,
-            message: "Bạn chưa nhập đầy đủ thông tin",
-        });
-    }
+router.post("/user/register", async (req, res) => {
+    const { name, phone, address, password } = req.body;
 
     try {
         // check for existing user
-        const user = await User.findOne({ username: username });
+        const user = await User.findOne({ phone: phone });
         if (user)
             return res.status(400).json({
                 success: false,
-                message: "Tên tài khoản đã được sử dụng",
+                message: "Số điện thoại đã được sử dụng",
             });
 
         const hashedPassword = await argon2.hash(password);
         const newUser = new User({
-            username: username,
+            name,
+            phone,
+            address,
             password: hashedPassword,
         });
+
+        // console.log(newStore);
 
         await newUser.save();
 
@@ -71,56 +51,6 @@ router.post("/register", async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Đăng ký tài khoản không thành công",
-        });
-    }
-});
-
-// @route POST /auth/login
-// @login user
-// @public
-
-router.post("/login", async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password)
-        return res.status(400).json({
-            success: false,
-            message: "Bạn chưa nhập đầy đủ thông tin",
-        });
-
-    try {
-        // Check for existing user
-        const user = await User.findOne({ username });
-        if (!user)
-            return res.status(400).json({
-                success: false,
-                message: "Tài khoản hoặc mật khẩu chưa đúng",
-            });
-
-        // Username found
-        const passwordValid = await argon2.verify(user.password, password);
-        if (!passwordValid)
-            return res.status(400).json({
-                success: false,
-                message: "Tài khoản hoặc mật khẩu chưa đúng",
-            });
-
-        // All good
-        // Return token
-        const accessToken = jwt.sign(
-            { userId: user._id },
-            process.env.ACCESS_TOKEN_SECRET
-        );
-
-        res.json({
-            success: true,
-            message: "Đăng nhập thành công",
-            accessToken,
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
         });
     }
 });

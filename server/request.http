@@ -1,10 +1,13 @@
 
+//-----------------------------------------------USER-----------------------------------------------
 
-POST http://localhost:5000/auth/register
+POST http://localhost:5000/auth/user/register
 Content-Type: application/json
 
 {
-    "username": "nguyentunglshb",
+    "phone": "0387126867",
+    "name": "tian",
+    "address": "NamDinh",
     "password": "tung811"
 }
 
