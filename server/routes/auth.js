@@ -122,6 +122,65 @@ router.get("/user", verifyTokenUser, async (req, res) => {
     }
 });
 
+// // @route PUT /auth/user/update
+// // @desc Update user
+// // @access Private
+router.put("/user/:id", verifyTokenUser, async (req, res) => {
+    const { name, phone, address } = req.body;
+
+    // check for existing user
+    const user = await User.findOne({
+        _id: { $ne: req.params.id },
+        phone: phone,
+    });
+    if (user)
+        return res.status(400).json({
+            success: false,
+            message: "Số điện thoại đã được sử dụng",
+        });
+
+    try {
+        let updatedUser = {
+            name,
+            phone,
+            address,
+        };
+        // console.log(updatedStore);
+        // console.log(req.params.id);
+
+        const userUpdateCondition = { _id: req.params.id };
+
+        // console.log(storeUpdateCondition);
+
+        updatedUser = await User.findOneAndUpdate(
+            userUpdateCondition,
+            updatedUser,
+            { new: true }
+        );
+
+        // console.log(updatedStore);
+
+        // Store not authorised to update store or store not found
+        if (!updatedUser)
+            return res.status(401).json({
+                success: false,
+                message: "Người dùng không tồn tại",
+            });
+
+        res.json({
+            success: true,
+            message: "Cập nhật thành công",
+            user: updatedUser,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
 //-----------------------------------------------STORE-----------------------------------------------
 
 // @route GET /auth/store

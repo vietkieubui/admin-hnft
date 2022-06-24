@@ -22,7 +22,18 @@ Content-Type: application/json
 
 ###
 GET http://localhost:5000/auth/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmIwODMzNDM5NDMxOTcxMDE4NzMzMjUiLCJpYXQiOjE2NTU3MzkzNDZ9.zt0PVESKfQ7h6jx549WUvAFSmVpffc4jz81boLu7gck
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmIwODMzNDM5NDMxOTcxMDE4NzMzMjUiLCJpYXQiOjE2NTYwNTA0ODd9.cdqvHycG7B9Pl2CsuVmD4zQP826C-Y5YnBowFZLugk8
+
+###
+PUT http://localhost:5000/auth/user/62b083343943197101873325
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmIwODMzNDM5NDMxOTcxMDE4NzMzMjUiLCJpYXQiOjE2NTYwNTA0ODd9.cdqvHycG7B9Pl2CsuVmD4zQP826C-Y5YnBowFZLugk8
+Content-Type: application/json
+
+{
+    "phone" : "0387126034",
+    "name": "Bùi Quang Tu",
+    "address": "Tân Triều, Thanh Trì, Hà Nội" 
+}
 
 //-----------------------------------------------STORE-----------------------------------------------
 
@@ -88,16 +99,12 @@ Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjYzY2I
 
 
 ###
-POST http://localhost:5000/orders
-Content-Type: : application/json
-Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjYzY2I4ZTA4NmRhYzA0MmQwZTVjNzYiLCJpYXQiOjE2NTM2NjQ1MzV9.sddLn6AqY2aD6DChHa4E60kRjMxXOfXYQzo6rOip2oE
+POST http://localhost:5000/orders/add
+Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmIwODMzNDM5NDMxOTcxMDE4NzMzMjUiLCJpYXQiOjE2NTYwNTA0ODd9.cdqvHycG7B9Pl2CsuVmD4zQP826C-Y5YnBowFZLugk8
+Content-Type: application/json
 
 {
-    "list": [{
-        "name": "any"
-    }],
-    "price": "30000",
-    "ship": "35000",
+    "foods": [{"name": "food1"}, {"name": "food2"}],
     "totalPrice": "65000"
 }
 
