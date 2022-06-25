@@ -97,16 +97,21 @@ GET http://localhost:5000/orders
 Content-Type: application/json
 Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjYzY2I4ZTA4NmRhYzA0MmQwZTVjNzYiLCJpYXQiOjE2NTM2NjQ1MzV9.sddLn6AqY2aD6DChHa4E60kRjMxXOfXYQzo6rOip2oE
 
-
 ###
 POST http://localhost:5000/orders/add
 Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmIwODMzNDM5NDMxOTcxMDE4NzMzMjUiLCJpYXQiOjE2NTYwNTA0ODd9.cdqvHycG7B9Pl2CsuVmD4zQP826C-Y5YnBowFZLugk8
 Content-Type: application/json
 
 {
+    "restaurant": "629ff7d9b1a2b515753aaf32",
     "foods": [{"name": "food1"}, {"name": "food2"}],
     "totalPrice": "65000"
 }
+
+###
+GET http://localhost:5000/orders/getOrderApp
+Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmIwODMzNDM5NDMxOTcxMDE4NzMzMjUiLCJpYXQiOjE2NTYwNTA0ODd9.cdqvHycG7B9Pl2CsuVmD4zQP826C-Y5YnBowFZLugk8
+Content-Type: application/json
 
 //-----------------------------------------------UPLOAD-----------------------------------------------
 

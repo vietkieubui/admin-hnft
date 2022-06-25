@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const argon2 = require("argon2");
-const jwt = require("jsonwebtoken");
 const verifyTokenUser = require("../middleware/authUser");
 const Order = require("../models/Order");
 
@@ -53,10 +51,10 @@ const Order = require("../models/Order");
 // });
 
 router.post("/add", verifyTokenUser, async (req, res) => {
-    const { foods, totalPrice } = req.body;
-    console.log(req.body);
+    const { restaurant, foods, totalPrice } = req.body;
     try {
         const newOrder = new Order({
+            restaurant,
             foods,
             totalPrice,
             status: "CHƯA XÁC NHẬN",
@@ -72,6 +70,27 @@ router.post("/add", verifyTokenUser, async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
+router.get("/getOrderApp", verifyTokenUser, async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.userId })
+            .populate("restaurant")
+            .exec();
+
+        if (!orders)
+            return res.status(400).json({
+                success: false,
+                message: "Không tìm thấy đơn hàng",
+            });
+
+        res.json({ success: true, orders: orders });
+    } catch (error) {
         res.status(500).json({
             success: false,
             message: "Internal server error",

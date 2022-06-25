@@ -7,7 +7,7 @@ const OrderSchema = new Schema({
         required: true,
     },
     totalPrice: {
-        type: String,
+        type: Number,
         required: true,
     },
     status: {
@@ -17,6 +17,14 @@ const OrderSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: "users",
+    },
+    restaurant: {
+        type: Schema.Types.ObjectId,
+        ref: "stores",
+    },
+    createAt: {
+        type: Date,
+        default: Date.now(),
     },
 });
 
