@@ -184,6 +184,7 @@ function Order() {
             title: "Mã đơn hàng",
             dataIndex: "_id",
             key: "_id",
+            ...getColumnSearchProps("_id"),
         },
         {
             title: "Ngày đặt",
@@ -200,11 +201,10 @@ function Order() {
             ...getColumnSearchProps(["user", "name"]),
         },
         {
-            title: "Địa chỉ",
-            dataIndex: ["user", "address"],
-            key: "address",
-            // width: 200,
-            ...getColumnSearchProps(["user", "address"]),
+            title: "Số điện thoại",
+            dataIndex: ["user", "phone"],
+            key: "phone",
+            ...getColumnSearchProps(["user", "phone"]),
         },
         {
             title: "Tổng tiền",
@@ -251,13 +251,13 @@ function Order() {
                 let color;
                 switch (status) {
                     case "CHƯA XÁC NHẬN":
-                        color = "#90a8b2";
+                        color = "#989fa6";
                         break;
                     case "CHUẨN BỊ":
-                        color = "#F7CB73";
+                        color = "yellow";
                         break;
                     case "ĐANG GIAO":
-                        color = "yellow";
+                        color = "#7CD1A9";
                         break;
                     case "ĐÃ GIAO":
                         color = "green";

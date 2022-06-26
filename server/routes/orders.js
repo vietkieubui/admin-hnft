@@ -81,8 +81,12 @@ router.post("/add", verifyTokenUser, async (req, res) => {
 
 router.get("/getOrderApp", verifyTokenUser, async (req, res) => {
     try {
-        const orders = await Order.find({ user: req.userId })
+        const orders = await Order.find({
+            user: req.userId,
+            status: { $in: ["CHƯA XÁC NHẬN", "CHUẨN BỊ", "ĐANG GIAO"] },
+        })
             .populate("restaurant")
+            .sort({ status: -1 })
             .exec();
 
         if (!orders)
