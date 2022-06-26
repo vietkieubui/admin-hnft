@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const verifyTokenUser = require("../middleware/authUser");
+const verifyToken = require("../middleware/auth");
 const Order = require("../models/Order");
 
 // router.get("/", verifyToken, async (req, res) => {
@@ -59,6 +60,7 @@ router.post("/add", verifyTokenUser, async (req, res) => {
             totalPrice,
             status: "CHƯA XÁC NHẬN",
             user: req.userId,
+            createAt: Date.now(),
         });
 
         await newOrder.save();
@@ -91,6 +93,67 @@ router.get("/getOrderApp", verifyTokenUser, async (req, res) => {
 
         res.json({ success: true, orders: orders });
     } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
+router.get("/getOrderWeb", verifyToken, async (req, res) => {
+    try {
+        const orders = await Order.find({ restaurant: req.storeId })
+            .populate("user")
+            .exec();
+
+        if (!orders)
+            return res.status(400).json({
+                success: false,
+                message: "Không tìm thấy đơn hàng",
+            });
+
+        res.json({ success: true, orders: orders });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
+router.put("/update/:id", verifyToken, async (req, res) => {
+    const { status } = req.body;
+
+    try {
+        let updatedOrder = {
+            status,
+        };
+
+        const orderUpdateCondition = {
+            _id: req.params.id,
+            restaurant: req.storeId,
+        };
+
+        updatedOrder = await Order.findOneAndUpdate(
+            orderUpdateCondition,
+            updatedOrder,
+            { new: true }
+        );
+
+        // User not authorised to update post or post not found
+        if (!updatedOrder)
+            return res.status(401).json({
+                success: false,
+                message: "Order not found or Store not authorised",
+            });
+
+        res.json({
+            success: true,
+            message: "Cập nhật trạng thái đơn hàng thành công",
+            order: updatedOrder,
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Internal server error",

@@ -1,12 +1,46 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table, Tag } from "antd";
-import React, { useRef, useState } from "react";
+import {
+    Button,
+    Col,
+    Divider,
+    Form,
+    Input,
+    message,
+    Row,
+    Select,
+    Space,
+    Table,
+    Tag,
+} from "antd";
+import Modal from "antd/lib/modal/Modal";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
+import { apiUrl } from "../../contexts/constants";
+import { formatDate } from "../../utils/utils";
 
 function Order() {
     const [searchText, setSearchText] = useState("");
     const [searchedColumn, setSearchedColumn] = useState("");
+    const [orders, setOrders] = useState(null);
+    const [orderSelect, setOrderSelect] = useState(null);
+    const [status, setStatus] = useState(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+
     const searchInput = useRef(null);
+
+    // console.log(orders);
+
+    useEffect(() => {
+        axios
+            .get(`${apiUrl}/orders/getOrderWeb`)
+            .then((response) => {
+                if (response.data.success) {
+                    setOrders(response.data.orders);
+                }
+            })
+            .catch((error) => message.error(error));
+    }, [orderSelect]);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -17,6 +51,31 @@ function Order() {
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText("");
+    };
+
+    const handleShowDetailModal = (orderId) => {
+        if (orders) {
+            const orderSelected = orders.find((order) => order._id === orderId);
+            setStatus(orderSelected.status);
+            setOrderSelect(orderSelected);
+        }
+        setShowDetailModal(true);
+    };
+
+    const handleUpdateOrderStatus = () => {
+        // console.log(status);
+        // console.log("update status");
+        axios
+            .put(`${apiUrl}/orders/update/${orderSelect._id}`, { status })
+            .then((res) => {
+                // console.log(res);
+                if (res.data.success) {
+                    setOrderSelect(res.data.order);
+                    message.success(res.data.message);
+                    setShowDetailModal(false);
+                }
+            })
+            .catch((error) => message.error(error));
     };
 
     const getColumnSearchProps = (dataIndex) => ({
@@ -120,81 +179,44 @@ function Order() {
             ),
     });
 
-    const order = [
-        {
-            key: "44",
-            id: "47134823195234",
-            date: "26 March 2020 12:42 AM",
-            customerName: "Aui Quang Tuan",
-            address: "Tân Triều, Thanh Trì, Hà Nội",
-            totalPay: 10000,
-            status: 0,
-        },
-        {
-            key: "28",
-            id: "47134823195235",
-            date: "26 March 2020 12:42 AM",
-            customerName: "Bui Quang Tuan",
-            address: "Tân Triều, Thanh Trì, Hà Nội",
-            totalPay: 20000,
-            status: 1,
-        },
-        {
-            key: "53",
-            id: "47134823195233",
-            date: "26 March 2020 12:42 AM",
-            customerName: "Cui Quang Tuan",
-            address: "Tân Triều, Thanh Trì, Hà Nội",
-            totalPay: 30000,
-            status: 2,
-        },
-        {
-            key: "86",
-            id: "47134823195231",
-            date: "b26 March 2020 12:42 AM",
-            customerName: "Dui Quang Tuan",
-            address: "Tân Triều, Thanh Trì, Hà Nội",
-            totalPay: 40000,
-            status: 1,
-        },
-    ];
-
     const columns = [
         {
-            title: "ID",
-            dataIndex: "id",
-            key: "id",
+            title: "Mã đơn hàng",
+            dataIndex: "_id",
+            key: "_id",
         },
         {
             title: "Ngày đặt",
-            dataIndex: "date",
-            key: "date",
+            dataIndex: "createAt",
+            key: "createAt",
+            render: (_, { createAt }) => formatDate(createAt),
         },
         {
             title: "Tên khách hàng",
-            dataIndex: "customerName",
-            key: "customerName",
+            dataIndex: ["user", "name"],
+            key: "userName",
             width: 200,
             // sorter: (a, b) => a.customerName.length - b.customerName.length,
-            ...getColumnSearchProps("customerName"),
+            ...getColumnSearchProps(["user", "name"]),
         },
         {
             title: "Địa chỉ",
-            dataIndex: "address",
+            dataIndex: ["user", "address"],
             key: "address",
             // width: 200,
-            ...getColumnSearchProps("address"),
+            ...getColumnSearchProps(["user", "address"]),
         },
         {
-            title: "Giá trị đơn hàng",
-            dataIndex: "totalPay",
-            key: "totalPay",
-            sorter: (a, b) => a.totalPay - b.totalPay,
-            render: (_, { totalPay }) =>
+            title: "Tổng tiền",
+            dataIndex: "totalPrice",
+            key: "totalPrice",
+            with: 80,
+            sorter: (a, b) => a.totalPrice - b.totalPrice,
+            render: (_, { totalPrice }) =>
                 new Intl.NumberFormat("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                }).format(totalPay),
+                }).format(totalPrice),
         },
         {
             title: "Trạng thái",
@@ -202,54 +224,247 @@ function Order() {
             dataIndex: "status",
             filters: [
                 {
-                    text: "ĐÃ GIAO",
-                    value: 1,
+                    text: "CHƯA XÁC NHẬN",
+                    value: "CHƯA XÁC NHẬN",
                 },
                 {
-                    text: "ĐĂNG GIAO",
-                    value: 2,
+                    text: "CHUẨN BỊ",
+                    value: "CHUẨN BỊ",
+                },
+                {
+                    text: "ĐANG GIAO",
+                    value: "ĐANG GIAO",
+                },
+                {
+                    text: "ĐÃ GIAO",
+                    value: "ĐÃ GIAO",
                 },
                 {
                     text: "ĐÃ HỦY",
-                    value: 0,
+                    value: "ĐÃ HỦY",
                 },
             ],
             // filterMode: "tree",
             // filterSearch: true,
             onFilter: (value, record) => record.status === value,
-            width: 120,
             render: (_, { status }) => {
-                let tag;
                 let color;
                 switch (status) {
-                    case 1:
-                        tag = "ĐÃ GIAO";
-                        color = "green";
+                    case "CHƯA XÁC NHẬN":
+                        color = "#90a8b2";
                         break;
-                    case 2:
-                        tag = "ĐANG GIAO";
+                    case "CHUẨN BỊ":
+                        color = "#F7CB73";
+                        break;
+                    case "ĐANG GIAO":
                         color = "yellow";
                         break;
+                    case "ĐÃ GIAO":
+                        color = "green";
+                        break;
                     default:
-                        tag = "ĐÃ HỦY";
                         color = "volcano";
                         break;
                 }
 
                 return (
                     <Tag
-                        style={{ width: 80, textAlign: "center" }}
+                        style={{ textAlign: "center", width: 111 }}
                         color={color}
-                        key={tag}
+                        key={status}
                     >
-                        {tag}
+                        {status}
                     </Tag>
                 );
             },
         },
+
+        {
+            title: "Tùy chọn",
+            key: "action",
+            render: (record) => (
+                <Space size="middle">
+                    <Button
+                        type="primary"
+                        onClick={() => handleShowDetailModal(record._id)}
+                    >
+                        Chi tiết
+                    </Button>
+                </Space>
+            ),
+        },
     ];
 
-    return <Table bordered columns={columns} dataSource={order} />;
+    const columnOrderDetail = [
+        {
+            title: "STT",
+            // dataIndex: "_id",
+            key: "_id",
+            render: (text, record, index) => index + 1,
+        },
+        {
+            title: "Tên món",
+            dataIndex: "name",
+            key: "name",
+        },
+        {
+            title: "Số lượng",
+            dataIndex: "quantity",
+            key: "quantity",
+        },
+        {
+            title: "Đơn giá",
+            dataIndex: "price",
+            key: "price",
+            render: (_, { price }) =>
+                new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                }).format(price),
+        },
+    ];
+
+    const DescriptionItem = ({ title, content }) => (
+        <div className="site-description-item-profile-wrapper">
+            <p className="site-description-item-profile-p-label">{title}:</p>
+            {content}
+        </div>
+    );
+
+    return (
+        <>
+            <Table
+                bordered
+                rowKey="_id"
+                columns={columns}
+                dataSource={orders}
+            />
+            {/* edit modal */}
+            {orderSelect && (
+                <Modal
+                    // width={1000}
+                    destroyOnClose={true}
+                    visible={showDetailModal}
+                    title="Chi tiết đơn hàng"
+                    transitionName=""
+                    maskTransitionName=""
+                    onCancel={() => setShowDetailModal(false)}
+                    footer={[
+                        <Button
+                            key="back"
+                            onClick={() => setShowDetailModal(false)}
+                        >
+                            Đóng
+                        </Button>,
+                        <Button
+                            key="submit"
+                            type="primary"
+                            onClick={handleUpdateOrderStatus}
+                        >
+                            Cập nhật trạng thái
+                        </Button>,
+                    ]}
+                >
+                    <p className="site-description-item-profile-p">
+                        Thông tin đơn hàng
+                    </p>
+                    <Row>
+                        <Col span={24}>
+                            <DescriptionItem
+                                title="Mã đơn hàng"
+                                content={orderSelect._id}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}>
+                            <DescriptionItem
+                                title="Thời gian đặt"
+                                content={formatDate(orderSelect.createAt)}
+                            />
+                        </Col>
+                    </Row>
+
+                    <Divider />
+
+                    <p className="site-description-item-profile-p">
+                        Thông tin khách hàng
+                    </p>
+                    <Row>
+                        <Col span={12}>
+                            <DescriptionItem
+                                title="Họ và Tên"
+                                content={orderSelect.user.name}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <DescriptionItem
+                                title="Số điện thoại"
+                                content={orderSelect.user.phone}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}>
+                            <DescriptionItem
+                                title="Địa chỉ"
+                                content={orderSelect.user.address}
+                            />
+                        </Col>
+                    </Row>
+
+                    <Divider />
+
+                    <p className="site-description-item-profile-p">Món đặt</p>
+                    <Table
+                        bordered
+                        rowKey="_id"
+                        columns={columnOrderDetail}
+                        dataSource={orderSelect.foods}
+                        footer={() => (
+                            <p style={{ textAlign: "end", margin: 0 }}>
+                                {"Tổng: " +
+                                    new Intl.NumberFormat("vi-VN", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    }).format(orderSelect.totalPrice)}
+                            </p>
+                        )}
+                    />
+
+                    <Form
+                        name="basic"
+                        labelCol={{ span: 4 }}
+                        wrapperCol={{ span: 20 }}
+                        fields={[{ name: "status", value: status }]}
+                        initialValues={{
+                            remember: true,
+                            status: status,
+                        }}
+                        autoComplete="off"
+                        // onFinish={handleUpdateFood}
+                    >
+                        <Form.Item label="Trạng thái" name="status">
+                            <Select
+                                // defaultValue={status}
+                                onChange={(value) => setStatus(value)}
+                            >
+                                <Select.Option value={"CHƯA XÁC NHẬN"}>
+                                    CHƯA XÁC NHẬN
+                                </Select.Option>
+                                <Select.Option value={"CHUẨN BỊ"}>
+                                    CHUẨN BỊ
+                                </Select.Option>
+                                <Select.Option value={"ĐANG GIAO"}>
+                                    ĐANG GIAO
+                                </Select.Option>
+                            </Select>
+                        </Form.Item>
+                    </Form>
+                </Modal>
+            )}
+        </>
+    );
 }
 
 export default Order;

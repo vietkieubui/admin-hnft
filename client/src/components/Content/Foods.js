@@ -49,9 +49,9 @@ export default function Food() {
 
     const handleUpdateFood = () => {
         //call API
-        console.log(dataEditForm);
+        // console.log(dataEditForm);
 
-        file &&
+        if (file) {
             uploadImage(file)
                 .then((res) => {
                     return updateFood({ ...dataEditForm, image: res.data });
@@ -67,8 +67,18 @@ export default function Food() {
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
+                    message.error(error);
                 });
+        } else {
+            updateFood({ ...dataEditForm })
+                .then((res) => {
+                    message.success(res.message);
+                    setShowEditModal(false);
+                })
+                .catch((error) => {
+                    message.error(error);
+                });
+        }
     };
 
     const handleAddFood = () => {

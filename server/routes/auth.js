@@ -29,6 +29,7 @@ router.post("/user/register", async (req, res) => {
             phone,
             address,
             password: hashedPassword,
+            createAt: Date.now(),
         });
 
         // console.log(newStore);
@@ -239,6 +240,7 @@ router.post("/store/register", async (req, res) => {
             timeOpen: timeOpen,
             timeClose: timeClose,
             categories: categories,
+            createAt: Date.now(),
         });
 
         // console.log(newStore);

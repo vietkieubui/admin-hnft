@@ -113,6 +113,20 @@ GET http://localhost:5000/orders/getOrderApp
 Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MmIwODMzNDM5NDMxOTcxMDE4NzMzMjUiLCJpYXQiOjE2NTYwNTA0ODd9.cdqvHycG7B9Pl2CsuVmD4zQP826C-Y5YnBowFZLugk8
 Content-Type: application/json
 
+###
+GET http://localhost:5000/orders/getOrderWeb
+Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdG9yZUlkIjoiNjI5ZjlmZWY1MDMzODk0NDYxMzA3YjBiIiwiaWF0IjoxNjU0NjI4MzM1fQ.on7dcXYnKGOiy31kdqdA3Ko5a555g3IWEyOmLLY6QEs
+Content-Type: application/json
+
+###
+PUT http://localhost:5000/orders/update/62b723e83072bbf6179afd32
+Authorization: Bear eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdG9yZUlkIjoiNjI5ZjlmZWY1MDMzODk0NDYxMzA3YjBiIiwiaWF0IjoxNjU0NjI4MzM1fQ.on7dcXYnKGOiy31kdqdA3Ko5a555g3IWEyOmLLY6QEs
+Content-Type: application/json
+
+{
+    "status" : "CHUẨN BỊ"
+}
+
 //-----------------------------------------------UPLOAD-----------------------------------------------
 
 ###

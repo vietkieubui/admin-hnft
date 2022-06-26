@@ -46,7 +46,7 @@ function Store() {
 
     const handleUpdateStore = () => {
         // console.log(updateForm);
-        file &&
+        if (file) {
             uploadImage(file)
                 .then((res) => {
                     return updateStore({ ...updateForm, avatar: res.data });
@@ -63,6 +63,15 @@ function Store() {
                 .catch((error) => {
                     console.log(error);
                 });
+        } else {
+            updateStore({ ...updateForm })
+                .then((res) => {
+                    message.success(res.message);
+                })
+                .catch((error) => {
+                    message.error(error);
+                });
+        }
     };
 
     const categoriesData = [
