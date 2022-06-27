@@ -106,8 +106,13 @@ router.get("/getOrderApp", verifyTokenUser, async (req, res) => {
 
 router.get("/getOrderWeb", verifyToken, async (req, res) => {
     try {
-        const orders = await Order.find({ restaurant: req.storeId })
+        const orders = await Order.find({
+            restaurant: req.storeId,
+            status: { $in: ["CHƯA XÁC NHẬN", "CHUẨN BỊ", "ĐANG GIAO"] },
+        })
             .populate("user")
+            .sort({ status: -1 })
+
             .exec();
 
         if (!orders)
@@ -125,7 +130,57 @@ router.get("/getOrderWeb", verifyToken, async (req, res) => {
     }
 });
 
-router.put("/update/:id", verifyToken, async (req, res) => {
+router.get("/getOrderHistoryApp", verifyTokenUser, async (req, res) => {
+    try {
+        const orders = await Order.find({
+            user: req.userId,
+            status: { $in: ["ĐÃ GIAO", "ĐÃ HỦY"] },
+        })
+            .populate("restaurant")
+            .sort({ status: -1 })
+            .exec();
+
+        if (!orders)
+            return res.status(400).json({
+                success: false,
+                message: "Không tìm thấy đơn hàng",
+            });
+
+        res.json({ success: true, orders: orders });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
+router.get("/getOrderHistoryWeb", verifyToken, async (req, res) => {
+    try {
+        const orders = await Order.find({
+            restaurant: req.storeId,
+            status: { $in: ["ĐÃ GIAO", "ĐÃ HỦY"] },
+        })
+            .populate("user")
+            .sort({ status: -1 })
+            .exec();
+
+        if (!orders)
+            return res.status(400).json({
+                success: false,
+                message: "Không tìm thấy đơn hàng",
+            });
+
+        res.json({ success: true, orders: orders });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
+router.put("/update/:id", async (req, res) => {
     const { status } = req.body;
 
     try {
@@ -135,7 +190,6 @@ router.put("/update/:id", verifyToken, async (req, res) => {
 
         const orderUpdateCondition = {
             _id: req.params.id,
-            restaurant: req.storeId,
         };
 
         updatedOrder = await Order.findOneAndUpdate(

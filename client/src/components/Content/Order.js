@@ -235,14 +235,6 @@ function Order() {
                     text: "ĐANG GIAO",
                     value: "ĐANG GIAO",
                 },
-                {
-                    text: "ĐÃ GIAO",
-                    value: "ĐÃ GIAO",
-                },
-                {
-                    text: "ĐÃ HỦY",
-                    value: "ĐÃ HỦY",
-                },
             ],
             // filterMode: "tree",
             // filterSearch: true,
@@ -258,9 +250,6 @@ function Order() {
                         break;
                     case "ĐANG GIAO":
                         color = "#7CD1A9";
-                        break;
-                    case "ĐÃ GIAO":
-                        color = "green";
                         break;
                     default:
                         color = "volcano";
