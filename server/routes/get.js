@@ -23,4 +23,24 @@ router.get("/stores/:category", async (req, res) => {
     }
 });
 
+router.get("/stores/search/:searchValue", async (req, res) => {
+    try {
+        const stores = await Store.find({
+            name: { $regex: req.params.searchValue, $options: "i" },
+        }).select("-password");
+        // console.log(store);
+        if (!stores)
+            return res.status(400).json({
+                success: false,
+                message: "Store not found ",
+            });
+        res.json({ success: true, stores });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+
 module.exports = router;

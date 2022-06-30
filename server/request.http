@@ -145,3 +145,7 @@ GET http://localhost:5000/get/stores/Chè
 # {
 #     "category": "Bún"
 # }
+
+
+###
+GET http://localhost:5000/get/stores/search/p
