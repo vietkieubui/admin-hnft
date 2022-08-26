@@ -11,19 +11,19 @@ const getRouter = require("./routes/get");
 const Grid = require("gridfs-stream");
 
 const connectdb = async () => {
-    try {
-        await mongoose.connect(
-            `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ev8o8.mongodb.net/hanoitoursm?retryWrites=true&w=majority`,
-            {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-            }
-        );
-        console.log("MongoDB connected");
-    } catch (error) {
-        console.log(error);
-        process.exit(1);
-    }
+  try {
+    await mongoose.connect(
+      `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ev8o8.mongodb.net/hanoitoursm?retryWrites=true&w=majority`,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }
+    );
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
 };
 
 connectdb();
@@ -31,19 +31,19 @@ connectdb();
 let gfs, gridfsBucket;
 const conn = mongoose.connection;
 conn.once("open", () => {
-    gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
-        bucketName: "photos",
-    });
+  gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
+    bucketName: "photos",
+  });
 
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection("photos");
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection("photos");
 });
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// app.get("/", (req, res) => res.send("hello world"));
+app.get("/", (req, res) => res.send("ADMIN HNFT API"));
 app.use("/auth", authRouter);
 app.use("/images", imagesRouter);
 app.use("/orders", ordersRouter);
@@ -53,26 +53,26 @@ app.use("/get", getRouter);
 
 // media routes
 app.get("/images/:filename", async (req, res) => {
-    console.log("filename: ", req.params.filename);
-    try {
-        const file = await gfs.files.findOne({ filename: req.params.filename });
-        console.log("file: ", file);
+  console.log("filename: ", req.params.filename);
+  try {
+    const file = await gfs.files.findOne({ filename: req.params.filename });
+    console.log("file: ", file);
 
-        const readStream = gridfsBucket.openDownloadStream(file._id);
-        readStream.pipe(res);
-    } catch (error) {
-        res.send(`not found: ${error}`);
-    }
+    const readStream = gridfsBucket.openDownloadStream(file._id);
+    readStream.pipe(res);
+  } catch (error) {
+    res.send(`not found: ${error}`);
+  }
 });
 
 app.delete("/images/:filename", async (req, res) => {
-    try {
-        await gfs.files.deleteOne({ filename: req.params.filename });
-        res.send("success");
-    } catch (error) {
-        console.log(error);
-        res.send("An error occured.");
-    }
+  try {
+    await gfs.files.deleteOne({ filename: req.params.filename });
+    res.send("success");
+  } catch (error) {
+    console.log(error);
+    res.send("An error occured.");
+  }
 });
 
 // app.get("/", (req, res) => {
